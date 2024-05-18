@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title= title
+    meta(charset="utf-8")
+    meta(name="csrf-token", content=viewData.csrfToken)
+    meta(name="viewport", content="width=device-width,initial-scale=1, minimum-scale=1")
+    script(type='text/javascript').
+  body(ondragstart="return false;" ondrop="return false;")
+    div#main-content(class= 'container body-content' + viewData.ua_result)
+      script(src= viewData.siteUrl + 'dist/layout.js')
+      block content

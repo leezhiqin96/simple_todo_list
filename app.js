@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const RequestIp = require('@supercharge/request-ip');
@@ -13,7 +14,7 @@ const { Sequelize } = require('sequelize');
 global.appRoot = path.resolve(__dirname);
 
 global.timeZone = typeof process.env.TIMEZONE == 'undefined' ? 'Asia/Singapore' : process.env.TIMEZONE;
-global.sisteUrl = typeof process.env.SITE_URL == 'undefined' ? '/' : proces.env.SITE_URL;
+global.siteUrl = typeof process.env.SITE_URL == 'undefined' ? '/' : process.env.SITE_URL;
 global.cookieExpiry = typeof process.env.COOKIE_EXPIRY == 'undefined' ? ((1000 * 60 * 60 * 24) * 30) : process.env.COOKIE_EXPIRY; // one day * 30
 global.__basedir = __dirname;
 
@@ -45,7 +46,16 @@ app.use(function (req, res, next) {
   next();
 });
 
-// app.use('/', indexRouter);
+// Routers setup
+const routerPath = path.join(__dirname, 'routes');
+fs.readdirSync(routerPath).forEach((file) => {
+  if (file.endsWith('.js')) {
+    const route = require(path.join(routerPath, file));
+    const routeName = file.slice(0, -3);
+    const routePrefix = routeName === 'index' ? '/' : `/${routeName}`;
+    app.use(routePrefix, route);
+  }
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
