@@ -1,0 +1,48 @@
+{
+  "name": "todo_todo",
+  "version": "1.0.0",
+  "description": "Simple To Do List App",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "watch": "nodemon ./bin/www",
+    "build": "webpack --mode=production",
+    "build-dev": "webpack --mode=development",
+    "build-watch": "webpack --watch --mode=development"
+  },
+  "author": "Zhi Qin",
+  "license": "ISC",
+  "dependencies": {
+    "@supercharge/request-ip": "^1.2.0",
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "console-stamp": "^3.1.2",
+    "cookie-parser": "^1.4.6",
+    "core-js": "^3.37.0",
+    "debug": "^4.3.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "http": "^0.0.1-security",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
+    "pug": "^3.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rsuite": "^5.60.2",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-react": "^7.24.1",
+    "nodemon": "^3.1.0",
+    "sass": "^1.77.1",
+    "sass-loader": "^14.2.1",
+    "sequelize-cli": "^6.6.2",
+    "style-loader": "^4.0.0",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

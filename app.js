@@ -1,0 +1,66 @@
+const createError = require('http-errors');
+const path = require('path');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const RequestIp = require('@supercharge/request-ip');
+
+const logger = require('morgan');
+
+require('dotenv').config();
+require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss.l');
+const { Sequelize } = require('sequelize');
+
+global.appRoot = path.resolve(__dirname);
+
+global.timeZone = typeof process.env.TIMEZONE == 'undefined' ? 'Asia/Singapore' : process.env.TIMEZONE;
+global.sisteUrl = typeof process.env.SITE_URL == 'undefined' ? '/' : proces.env.SITE_URL;
+global.cookieExpiry = typeof process.env.COOKIE_EXPIRY == 'undefined' ? ((1000 * 60 * 60 * 24) * 30) : process.env.COOKIE_EXPIRY; // one day * 30
+global.__basedir = __dirname;
+
+// Without these handlers, an unhandled rejection or an uncaught exception would
+// cause the Node.js process to crash. By handling these globally, you can log
+// the error and potentially perform cleanup actions before
+// terminating the process gracefully.
+process.on('unhandledRejection', (reason, p) => {
+  console.error('----Unhandled Rejection at:', p, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error(`----Caught exception: ${error}\n` + `Exception origin: ${error.stack}`);
+});
+
+const app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+app.use(logger('dev'));
+app.use(express.json({ limit: '50mb' })); // Parse incoming JSON request bodies
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // automatically parses incoming URL-encoded form data and exposes it in req.body
+app.use(cookieParser());
+app.use(function (req, res, next) {
+  // setup for user agent and ip
+  req.ua = req.get('User-Agent');
+  req.ip = RequestIp.getClientIp(req)
+  next();
+});
+
+// app.use('/', indexRouter);
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error', { title: 'Error' });
+});
+
+module.exports = app;
