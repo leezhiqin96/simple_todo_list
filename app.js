@@ -25,6 +25,7 @@ process.on('uncaughtException', (error) => {
   console.error(`----Caught exception: ${error}\n` + `Exception origin: ${error.stack}`);
 });
 
+
 const app = express();
 
 // view engine setup
@@ -40,6 +41,7 @@ app.use(function (req, res, next) {
   req.ip = RequestIp.getClientIp(req)
   next();
 });
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routers setup
 const routerPath = path.join(__dirname, 'routes');
