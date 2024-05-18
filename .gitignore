@@ -5,5 +5,3 @@ public/dist/
 public/assets/
 
 .env
-
-config/config.json

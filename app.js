@@ -9,7 +9,6 @@ const logger = require('morgan');
 
 require('dotenv').config();
 require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss.l');
-const { Sequelize } = require('sequelize');
 
 global.appRoot = path.resolve(__dirname);
 
@@ -18,10 +17,6 @@ global.siteUrl = typeof process.env.SITE_URL == 'undefined' ? '/' : process.env.
 global.cookieExpiry = typeof process.env.COOKIE_EXPIRY == 'undefined' ? ((1000 * 60 * 60 * 24) * 30) : process.env.COOKIE_EXPIRY; // one day * 30
 global.__basedir = __dirname;
 
-// Without these handlers, an unhandled rejection or an uncaught exception would
-// cause the Node.js process to crash. By handling these globally, you can log
-// the error and potentially perform cleanup actions before
-// terminating the process gracefully.
 process.on('unhandledRejection', (reason, p) => {
   console.error('----Unhandled Rejection at:', p, 'reason:', reason);
 });
