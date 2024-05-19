@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import './styles/common.scss';
 import './styles/login.scss';
 
-import LoginForm from "./components/loginForm.component";
+import LoginForm from "./components/login/loginForm.component";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
