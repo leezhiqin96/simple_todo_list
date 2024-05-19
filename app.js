@@ -6,7 +6,10 @@ const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const csrfProtection = csurf({ cookie: true });
 const RequestIp = require('@supercharge/request-ip');
-const routes = require('./config/routes')
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const { sequelize } = require('./models'); // Assuming you have Sequelize initialized
+const routes = require('./config/routes');
 
 const logger = require('morgan');
 
@@ -39,6 +42,20 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' })); // automatically
 app.use(cookieParser());
 app.use(csrfProtection); // Apply CSRF protection to all routes
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Set up session middleware
+app.use(session({
+  secret: 'fRu1ZBg3nHJz$%@l9w1XqW2T34pDjKoG',
+  resave: false,
+  saveUninitialized: false,
+  store: new SequelizeStore({
+    db: sequelize,
+    expiration: 86400000
+  }),
+}));
+
+// Sync the session store with Sequelize
+sequelize.sync();
 
 app.use(function (req, res, next) {
   // setup for user agent and ip

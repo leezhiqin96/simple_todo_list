@@ -1,15 +1,36 @@
-import React, { forwardRef } from "react";
-import { Form, Panel, Button, Input, InputGroup } from "rsuite";
+import React, { forwardRef, useRef } from "react";
+import axios from "axios";
+import { Form, Panel, Button, Schema } from "rsuite";
 import AvatarIcon from '@rsuite/icons/legacy/Avatar';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 
 import CustomIconInput from "./customIconInput.component";
 
-const LoginPanel = forwardRef(({ clickRegister, formValue, ...remainingProps }, ref) => {
+const model = Schema.Model({
+  login: Schema.Types.StringType().isRequired("This field is required."),
+  password: Schema.Types.StringType().isRequired("This field is required."),
+});
+
+const LoginPanel = forwardRef(({ clickRegister, formValue, onValueChange, ...remainingProps }, ref) => {
+  const localFormRef = useRef(null);
+
+  const loginUser = async () => {
+    const formValid = localFormRef.current.check();
+    try {
+      if (formValid) {
+        const loginResult = await axios.post('/login', formValue, {
+          headers: { 'X-CSRF-Token': csrfToken }
+        });
+      }
+    } catch (error) {
+
+    }
+  }
+
   return (
     <Panel header="Login" bordered shaded ref={ref} {...remainingProps}>
-      <Form fluid>
+      <Form fluid formValue={formValue} onChange={onValueChange} ref={localFormRef} model={model}>
         <Form.Group controlId="login">
           <Form.Control
             name="login"
@@ -29,7 +50,11 @@ const LoginPanel = forwardRef(({ clickRegister, formValue, ...remainingProps }, 
           />
         </Form.Group>
 
-        <p>Not registered yet? <Button appearance="primary" onClick={clickRegister}>Click here to register</Button></p>
+        <p>Not registered yet? <Button appearance="ghost" onClick={clickRegister}>Click here to register</Button></p>
+
+        <br />
+
+        <Button block appearance="primary" onClick={loginUser}>Login</Button>
       </Form>
     </Panel>
   )

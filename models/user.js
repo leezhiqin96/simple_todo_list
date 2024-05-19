@@ -1,6 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
 const crypto = require('crypto');
+const { Op } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -11,19 +12,35 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      User.hasMany(models.Task, { foreignKey: 'id', as: 'tasks' });
+      User.hasMany(models.Task, { foreignKey: "id", as: "tasks" });
     }
 
-    static async hashPassword(password) {
+    static hashPassword(password) {
       console.log("hashing password");
       let passBuffer = [];
-      let buffer = new Buffer.alloc(password.length * 2, password, 'utf16le');
+      let buffer = new Buffer.alloc(password.length * 2, password, "utf16le");
       for (let i = 0; i < buffer.length; i++) {
         passBuffer.push(buffer[i]);
       }
 
-      let hash = crypto.createHash('sha256').update(buffer).digest('base64');
+      let hash = crypto.createHash("sha256").update(buffer).digest("base64");
       return hash;
+    }
+
+    static verifyPassword(plaintext, password) {
+      const hashPw = this.hashPassword(plaintext);
+      return hashPw === password;
+    }
+
+    static async login(credentials, password) {
+      const user = await this.findOne({
+        where: { [Op.or]: [{ userName: credentials }, { email: credentials }] },
+      });
+
+      if (user) {
+        const correctPassword = this.verifyPassword(password, user.dataValues.password)
+        return correctPassword ? user : null
+      }
     }
   }
   User.init({

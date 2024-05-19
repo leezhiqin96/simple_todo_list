@@ -34,7 +34,7 @@ export default function LoginForm() {
     setMode('register');
   }
 
-  const handleClickCancel = () => {
+  const changeLoginMode = () => {
     setMode('login');
   }
 
@@ -50,14 +50,18 @@ export default function LoginForm() {
 
         {mode === 'login' && (
           <Animation.Slide in={mode === 'login'}>
-            <LoginPanel clickRegister={handleClickRegister} formValue={formState.login} />
+            <LoginPanel
+              clickRegister={handleClickRegister}
+              formValue={formState.login}
+              onValueChange={handleFormValueChange}
+            />
           </Animation.Slide>
         )}
 
         {mode === 'register' && (
           <Animation.Slide in={mode === 'register'}>
             <RegisterPanel
-              clickCancel={handleClickCancel}
+              backToLogin={changeLoginMode}
               formValue={formState.register}
               onValueChange={handleFormValueChange}
             />

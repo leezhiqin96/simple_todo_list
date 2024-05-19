@@ -51,7 +51,23 @@ const checkUserExists = async (req, res) => {
   }
 }
 
+const loginUser = async (req, res) => {
+  const { login, password } = req.body;
+  try {
+    const user = await User.login(login, password);
+    if (user) {
+      req.session.userId = user.dataValues.id; // Store user ID in the session
+      res.status(200).send({ message: 'Login successful' });
+    } else {
+      res.status(401).send({ message: 'Invalid credentials' });
+    }
+  } catch (error) {
+    catchError(res, error.message, error, 'loginUser')
+  }
+}
+
 module.exports = {
   createUser,
-  checkUserExists
+  checkUserExists,
+  loginUser
 }

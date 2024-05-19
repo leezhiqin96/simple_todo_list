@@ -12,7 +12,8 @@ router.route('/')
 router.route('/login')
   .get(function (req, res, next) {
     res.render('login', { title: 'Login', csrfToken: req.csrfToken() });
-  });
+  })
+  .post(UserController.loginUser);
 
 
 // === Requests ===
