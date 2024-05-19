@@ -8,8 +8,6 @@ module.exports = {
       userName: 'johndoe',
       email: 'john@gmail.com',
       password: 'password',
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
   },
 

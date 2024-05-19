@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const csrfProtection = csurf({ cookie: true });
 const RequestIp = require('@supercharge/request-ip');
+const routes = require('./config/routes')
 
 const logger = require('morgan');
 
@@ -47,15 +48,7 @@ app.use(function (req, res, next) {
 });
 
 // Routers setup
-const routerPath = path.join(__dirname, 'routes');
-fs.readdirSync(routerPath).forEach((file) => {
-  if (file.endsWith('.js')) {
-    const route = require(path.join(routerPath, file));
-    const routeName = file.slice(0, -3);
-    const routePrefix = routeName === 'index' ? '/' : `/${routeName}`;
-    app.use(routePrefix, route);
-  }
-});
+app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
