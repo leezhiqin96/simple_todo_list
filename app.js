@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
+const csrfProtection = csurf({ cookie: true });
 const RequestIp = require('@supercharge/request-ip');
 
 const logger = require('morgan');
@@ -25,7 +27,6 @@ process.on('uncaughtException', (error) => {
   console.error(`----Caught exception: ${error}\n` + `Exception origin: ${error.stack}`);
 });
 
-
 const app = express();
 
 // view engine setup
@@ -35,13 +36,15 @@ app.use(logger('dev'));
 app.use(express.json({ limit: '50mb' })); // Parse incoming JSON request bodies
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // automatically parses incoming URL-encoded form data and exposes it in req.body
 app.use(cookieParser());
+app.use(csrfProtection); // Apply CSRF protection to all routes
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(function (req, res, next) {
   // setup for user agent and ip
   req.ua = req.get('User-Agent');
   req.ip = RequestIp.getClientIp(req)
   next();
 });
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Routers setup
 const routerPath = path.join(__dirname, 'routes');
