@@ -1,29 +1,26 @@
 import React from "react";
-import axios from "axios";
-import { useSearchParams } from "react-router-dom";
-import { Form } from "rsuite";
+import { FlexboxGrid, Form, Panel } from "rsuite";
 
 export default function LoginForm() {
-  const [searchParams] = useSearchParams();
 
 
 
   return (
-    <Form>
-      <Form.Group controlId="name-1">
-        <Form.ControlLabel>Username</Form.ControlLabel>
-        <Form.Control name="name" />
-        <Form.HelpText>Required</Form.HelpText>
-      </Form.Group>
-      <Form.Group controlId="email-1">
-        <Form.ControlLabel>Email</Form.ControlLabel>
-        <Form.Control name="email" type="email" />
-        <Form.HelpText>Required</Form.HelpText>
-      </Form.Group>
-      <Form.Group controlId="password-1">
-        <Form.ControlLabel>Password</Form.ControlLabel>
-        <Form.Control name="password" type="password" autoComplete="off" />
-      </Form.Group>
-    </Form>
+    <FlexboxGrid justify="center" align="middle">
+      <FlexboxGrid.Item colspan={12}>
+        <Panel header={<h2>Login</h2>} bordered shaded>
+          <Form fluid>
+            <Form.Group controlId="login">
+              <Form.ControlLabel>Username or Email Address</Form.ControlLabel>
+              <Form.Control name="login" />
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.ControlLabel>Email</Form.ControlLabel>
+              <Form.Control name="password" type="password" autoComplete="off" />
+            </Form.Group>
+          </Form>
+        </Panel>
+      </FlexboxGrid.Item>
+    </FlexboxGrid>
   );
 }
