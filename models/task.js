@@ -25,11 +25,21 @@ module.exports = (sequelize, DataTypes) => {
     userID: {
       type: DataTypes.INTEGER,
       references: {
-        model: User,
+        model: 'Users',
         key: 'id'
-      }
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
     },
-    parentTaskID: DataTypes.INTEGER,
+    parentTaskID: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Tasks',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
     title: DataTypes.STRING,
     status: DataTypes.STRING,
     orderIndex: DataTypes.INTEGER

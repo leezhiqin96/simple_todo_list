@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async hashPassword(password) {
-      console.log("hashing password", password);
+      console.log("hashing password");
       let passBuffer = [];
       let buffer = new Buffer.alloc(password.length * 2, password, 'utf16le');
       for (let i = 0; i < buffer.length; i++) {
