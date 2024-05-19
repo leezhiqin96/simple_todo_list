@@ -27,11 +27,10 @@ const createUser = async (req, res) => {
 
     await transaction.commit();
 
-    res.status(200).send({ message: 'Successfully Registered!' })
+    res.status(200).send({ message: 'Successfully Registered! You can now log in with your new credentials.' });
   } catch (error) {
-    console.log("ERROR LOG", error);
     await transaction.rollback();
-    catchError(res, error.message, error, 'createUser')
+    catchError(res, "Something went wrong, please reload and try again!", error, 'createUser')
   }
 }
 

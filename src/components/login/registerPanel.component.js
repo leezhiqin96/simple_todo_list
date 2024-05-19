@@ -51,7 +51,7 @@ const model = Schema.Model({
 });
 
 const RegisterPanel = forwardRef(
-  ({ clickCancel, formValue, onValueChange, ...remainingProps }, ref) => {
+  ({ backToLogin, formValue, onValueChange, ...remainingProps }, ref) => {
     const [formValid, setFormValid] = useState(false);
     const localFormRef = useRef(null);
     const toaster = useToaster(null);
@@ -73,9 +73,10 @@ const RegisterPanel = forwardRef(
         if (formValid) {
           const submissionResult = await axios.post('/users', formValue, {
             headers: { 'X-CSRF-Token': csrfToken }
-          })
+          });
 
           toaster.push(renderMessageBox("success", submissionResult.data.message), { placement: "topCenter", duration: 5000 });
+          backToLogin();
         }
       } catch (error) {
         toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 5000 });
@@ -138,7 +139,7 @@ const RegisterPanel = forwardRef(
           </Form.Group>
 
           <Stack justifyContent="space-between">
-            <Button appearance="primary" color="red" onClick={clickCancel}>
+            <Button appearance="primary" color="red" onClick={backToLogin}>
               Cancel
             </Button>
             <Button
