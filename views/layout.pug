@@ -5,7 +5,11 @@ html
     meta(charset="utf-8")
     meta(name="viewport", content="width=device-width,initial-scale=1, minimum-scale=1")
     script(type='text/javascript').
+      var userName = '!{viewData.user.userName}';
+      var userID = '!{viewData.user.userID}';
+      var userEmail = '!{viewData.user.email}';
   body(ondragstart="return false;" ondrop="return false;")
+    div#side-nav
     div#main-content(class= 'container body-content')
       script(src= '/dist/layout.js')
       block content
