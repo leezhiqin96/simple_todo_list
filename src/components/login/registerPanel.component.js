@@ -98,6 +98,7 @@ const RegisterPanel = forwardRef(
           onChange={onValueChange}
           ref={localFormRef}
           onCheck={handleFormCheck}
+          checkTrigger="blur"
         >
           <Form.Group controlId="email">
             <Form.Control

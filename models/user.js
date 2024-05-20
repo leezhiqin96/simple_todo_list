@@ -64,15 +64,15 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
     hooks: {
       // Before creating a user, hash the password
-      beforeCreate: async (user) => {
+      beforeCreate: (user) => {
         if (user.password) {
-          user.password = await User.hashPassword(user.password);
+          user.password = User.hashPassword(user.password);
         }
       },
       // Before updating a user, hash the new password if changed
-      beforeUpdate: async (user) => {
+      beforeUpdate: (user) => {
         if (user.changed('password')) {
-          user.password = await User.hashPassword(user.password);
+          user.password = User.hashPassword(user.password);
         }
       }
     }
