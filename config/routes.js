@@ -24,5 +24,13 @@ router.route('/users')
 
 router.get('/users/check', UserController.checkUserExists);
 
+router.route('/users/:userID/tasks')
+  .get(UserController.getUserTasks)
+  .post();
+
+router.route('/users/:userID/tasks/:taskID')
+  .get()
+  .put()
+  .delete();
 
 module.exports = router

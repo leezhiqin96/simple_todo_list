@@ -1,4 +1,4 @@
-const { sequelize, User } = require('../models/');
+const { sequelize, User, Task } = require('../models/');
 
 const catchError = (res, msg, error, functionName) => {
   if (res != null) {
@@ -10,7 +10,6 @@ const catchError = (res, msg, error, functionName) => {
   } else {
     console.log('Error - ', msg, functionName, error)
   }
-
 }
 
 
@@ -75,9 +74,21 @@ const logoutUser = (req, res) => {
   });
 };
 
+const getUserTasks = async (req, res) => {
+  const userID = req.params.userID;
+
+  try {
+    const tasks = await Task.findAll({ where: { userID } });
+    res.status(200).send(tasks);
+  } catch (error) {
+    catchError(res, error.message, error, 'getUserTasks')
+  }
+}
+
 module.exports = {
   createUser,
   checkUserExists,
   loginUser,
-  logoutUser
+  logoutUser,
+  getUserTasks
 }

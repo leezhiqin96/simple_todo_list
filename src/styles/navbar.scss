@@ -32,10 +32,7 @@
 }
 
 @media only screen and (min-width: 1025px) {
-}
-
-@media only screen and (min-width: 1026px) and (max-width: 1440px) {
-}
-
-@media only screen and (min-width: 1441px) and (max-width: 2560px) {
+  #side-nav {
+    width: 12vw;
+  }
 }

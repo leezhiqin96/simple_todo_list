@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Sidenav, Nav, useToaster } from "rsuite";
+import React, { useState } from "react";
+import { Sidenav, Nav, useToaster, Message } from "rsuite";
 import DashboardIcon from "@rsuite/icons/legacy/Dashboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
@@ -22,7 +22,7 @@ export default function SideNavBar() {
       const logoutResult = await axios.post('/logout', {}, { headers: { 'X-CSRF-Token': csrfToken } });
       window.location = logoutResult.data.redirectUrl
     } catch (error) {
-      toaster.push(renderMessageBox("success", error.response.data.message), { placement: "topCenter", duration: 2000 });
+      toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 2000 });
     }
   }
 
