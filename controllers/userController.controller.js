@@ -57,9 +57,9 @@ const loginUser = async (req, res) => {
     const user = await User.login(login, password);
     if (user) {
       req.session.userId = user.dataValues.id; // Store user ID in the session
-      res.status(200).send({ message: 'Login successful' });
+      res.status(200).send({ message: 'Login successful', redirectUrl: '/' });
     } else {
-      res.status(401).send({ message: 'Invalid credentials' });
+      res.status(401).send({ message: 'Invalid Credentials' });
     }
   } catch (error) {
     catchError(res, error.message, error, 'loginUser')

@@ -1,11 +1,19 @@
 import React, { forwardRef, useRef } from "react";
 import axios from "axios";
-import { Form, Panel, Button, Schema } from "rsuite";
+import { Form, Panel, Button, Schema, useToaster, Message } from "rsuite";
 import AvatarIcon from '@rsuite/icons/legacy/Avatar';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 
 import CustomIconInput from "./customIconInput.component";
+
+const renderMessageBox = (type, message) => {
+  return (
+    <Message showIcon type={type} closable>
+      {message}
+    </Message>
+  )
+}
 
 const model = Schema.Model({
   login: Schema.Types.StringType().isRequired("This field is required."),
@@ -14,6 +22,7 @@ const model = Schema.Model({
 
 const LoginPanel = forwardRef(({ clickRegister, formValue, onValueChange, ...remainingProps }, ref) => {
   const localFormRef = useRef(null);
+  const toaster = useToaster(null);
 
   const loginUser = async () => {
     const formValid = localFormRef.current.check();
@@ -22,9 +31,13 @@ const LoginPanel = forwardRef(({ clickRegister, formValue, onValueChange, ...rem
         const loginResult = await axios.post('/login', formValue, {
           headers: { 'X-CSRF-Token': csrfToken }
         });
+        toaster.push(renderMessageBox("success", loginResult.data.message), { placement: "topCenter", duration: 800 });
+        setTimeout(() => {
+          window.location = loginResult.data.redirectUrl;
+        }, 800)
       }
     } catch (error) {
-
+      toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 5000 });
     }
   }
 
