@@ -65,16 +65,11 @@ app.use(function (req, res, next) {
   next();
 });
 
+// Setup auth middleware
+app.use((req, res, next) => isAuthenticated(req, res, next));
+
 // Routers setup
 app.use('/', routes);
-
-// Setup auth middleware
-app.use((req, res, next) => {
-  if (req.path === '/login') {
-    return next();
-  }
-  isAuthenticated(req, res, next);
-});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

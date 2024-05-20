@@ -2,7 +2,8 @@ var path = require('path');
 
 module.exports = {
   entry: {
-    // 'main': './src/index.js',
+    'layout': './src/layout.js',
+    'main': './src/index.js',
     'login': './src/login.js',
   },
   devtool: 'source-map',
