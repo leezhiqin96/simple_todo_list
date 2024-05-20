@@ -5,7 +5,8 @@
     "database": "todo_database_development",
     "host": "localhost",
     "dialect": "postgres",
-    "port": "5432"
+    "port": "5432",
+    "logging": false
   },
   "production": {
     "username": "postgres",

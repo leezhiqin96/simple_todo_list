@@ -10,8 +10,9 @@ const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { sequelize } = require('./models'); // Assuming you have Sequelize initialized
 const routes = require('./config/routes');
-
 const logger = require('morgan');
+
+const { isAuthenticated } = require('./middleware/auth')
 
 require('dotenv').config();
 require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss.l');
@@ -66,6 +67,14 @@ app.use(function (req, res, next) {
 
 // Routers setup
 app.use('/', routes);
+
+// Setup auth middleware
+app.use((req, res, next) => {
+  if (req.path === '/login') {
+    return next();
+  }
+  isAuthenticated(req, res, next);
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -66,8 +66,18 @@ const loginUser = async (req, res) => {
   }
 }
 
+const logoutUser = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).send({ message: 'Failed to log out' });
+    }
+    res.redirect('/login'); 
+  });
+};
+
 module.exports = {
   createUser,
   checkUserExists,
-  loginUser
+  loginUser,
+  logoutUser
 }

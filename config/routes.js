@@ -16,10 +16,13 @@ router.route('/login')
   .post(UserController.loginUser);
 
 
-// === Requests ===
+  // === Requests ===  
+router.post('/logout', UserController.logoutUser);
+
 router.route('/users')
   .post(UserController.createUser);
 
-router.get('/users/check', UserController.checkUserExists)
+router.get('/users/check', UserController.checkUserExists);
+
 
 module.exports = router
