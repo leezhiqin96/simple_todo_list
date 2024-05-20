@@ -71,7 +71,7 @@ const logoutUser = (req, res) => {
     if (err) {
       return res.status(500).send({ message: 'Failed to log out' });
     }
-    res.redirect('/login'); 
+    res.status(200).send({ message: 'Logout successful', redirectUrl: '/login' });
   });
 };
 

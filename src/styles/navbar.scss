@@ -1,3 +1,41 @@
-#side-nav, #side-nav nav {
-    height: 100%;
+#side-nav,
+#side-nav nav {
+  height: 100%;
+}
+
+#side-nav {
+  width: 25%;
+
+  .nav-header {
+    font-size: 1em;
+    padding: 1em;
+    background-color: #34c3ff;
+    color: #fff;
+  }
+
+  .rs-sidenav-nav > .rs-dropdown .rs-dropdown-toggle,
+  .rs-sidenav-nav > .rs-sidenav-item {
+    font-size: 1em;
+  }
+}
+
+@media only screen and (max-width: 426px) {
+  #side-nav {
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+}
+
+@media only screen and (min-width: 769px) and (max-width: 1024px) {
+}
+
+@media only screen and (min-width: 1025px) {
+}
+
+@media only screen and (min-width: 1026px) and (max-width: 1440px) {
+}
+
+@media only screen and (min-width: 1441px) and (max-width: 2560px) {
 }

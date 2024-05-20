@@ -1,38 +1,53 @@
-import React from "react";
-import { Sidenav, Nav } from 'rsuite';
-import DashboardIcon from '@rsuite/icons/legacy/Dashboard';
-import GroupIcon from '@rsuite/icons/legacy/Group';
-import MagicIcon from '@rsuite/icons/legacy/Magic';
-import GearCircleIcon from '@rsuite/icons/legacy/GearCircle';
+import React, { useState, useEffect } from "react";
+import { Sidenav, Nav, useToaster } from "rsuite";
+import DashboardIcon from "@rsuite/icons/legacy/Dashboard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+
+const renderMessageBox = (type, message) => {
+  return (
+    <Message showIcon type={type} closable>
+      {message}
+    </Message>
+  )
+}
 
 export default function SideNavBar() {
-    return (
-        <Sidenav defaultOpenKeys={['3', '4']} expanded={false}>
-            <Sidenav.Body>
-                <Nav activeKey="1">
-                    <Nav.Item eventKey="1" icon={<DashboardIcon />}>
-                        Dashboard
-                    </Nav.Item>
-                    <Nav.Item eventKey="2" icon={<GroupIcon />}>
-                        User Group
-                    </Nav.Item>
-                    <Nav.Menu eventKey="3" title="Advanced" icon={<MagicIcon />}>
-                        <Nav.Item eventKey="3-1">Geo</Nav.Item>
-                        <Nav.Item eventKey="3-2">Devices</Nav.Item>
-                        <Nav.Item eventKey="3-3">Loyalty</Nav.Item>
-                        <Nav.Item eventKey="3-4">Visit Depth</Nav.Item>
-                    </Nav.Menu>
-                    <Nav.Menu eventKey="4" title="Settings" icon={<GearCircleIcon />}>
-                        <Nav.Item eventKey="4-1">Applications</Nav.Item>
-                        <Nav.Item eventKey="4-2">Channels</Nav.Item>
-                        <Nav.Item eventKey="4-3">Versions</Nav.Item>
-                        <Nav.Menu eventKey="4-5" title="Custom Action">
-                            <Nav.Item eventKey="4-5-1">Action Name</Nav.Item>
-                            <Nav.Item eventKey="4-5-2">Action Params</Nav.Item>
-                        </Nav.Menu>
-                    </Nav.Menu>
-                </Nav>
-            </Sidenav.Body>
-        </Sidenav>
-    )
+  const [expanded, setExpanded] = useState(true);
+  const toaster = useToaster(null);
+
+  const handleLogout = async () => {
+    try {
+      const logoutResult = await axios.post('/logout', {}, { headers: { 'X-CSRF-Token': csrfToken } });
+      window.location = logoutResult.data.redirectUrl
+    } catch (error) {
+      toaster.push(renderMessageBox("success", error.response.data.message), { placement: "topCenter", duration: 2000 });
+    }
+  }
+
+  return (
+    <Sidenav expanded={expanded}>
+      <Sidenav.Body>
+        <Nav activeKey="1">
+          <Nav.Item eventKey="1" icon={<DashboardIcon />}>
+            Home
+          </Nav.Item>
+          <Nav.Item
+            eventKey="2"
+            icon={
+              <FontAwesomeIcon
+                icon={faRightFromBracket}
+                className="rs-sidenav-item-icon rs-icon"
+              />
+            }
+            onClick={handleLogout}
+          >
+            Logout
+          </Nav.Item>
+        </Nav>
+      </Sidenav.Body>
+      <Sidenav.Toggle onToggle={(expanded) => setExpanded(expanded)} />
+    </Sidenav>
+  );
 }

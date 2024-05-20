@@ -34,10 +34,10 @@ const LoginPanel = forwardRef(({ clickRegister, formValue, onValueChange, ...rem
         toaster.push(renderMessageBox("success", loginResult.data.message), { placement: "topCenter", duration: 800 });
         setTimeout(() => {
           window.location = loginResult.data.redirectUrl;
-        }, 800)
+        }, 900)
       }
     } catch (error) {
-      toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 5000 });
+      toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 2000 });
     }
   }
 

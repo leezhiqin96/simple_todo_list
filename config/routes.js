@@ -13,11 +13,11 @@ router.route('/login')
 
 router.route('/')
   .get(generateViewData, async function (req, res, next) {
-    res.render('index', { title: 'Home', viewData: req.viewPackage})
+    res.render('index', { title: 'Home', viewData: req.viewPackage })
   });
 
-// === Requests ===  
-router.get('/logout', UserController.logoutUser);
+// === Requests ===
+router.post('/logout', UserController.logoutUser);
 
 router.route('/users')
   .post(UserController.createUser);
