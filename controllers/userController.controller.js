@@ -78,7 +78,14 @@ const getUserTasks = async (req, res) => {
   const userID = req.params.userID;
 
   try {
-    const tasks = await Task.findAll({ where: { userID } });
+    const tasks = await Task.findAll({
+      where: { parentTaskID: null, userID },
+      include: [{
+        model: Task,
+        as: 'subtasks', // Include the associated subtasks
+      }],
+      order: [['orderIndex', 'ASC']]
+    });
     res.status(200).send(tasks);
   } catch (error) {
     catchError(res, error.message, error, 'getUserTasks')

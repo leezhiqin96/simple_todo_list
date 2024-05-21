@@ -41,7 +41,9 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE'
     },
     title: DataTypes.STRING,
+    dueDate: DataTypes.DATE,
     status: DataTypes.STRING,
+    priority: DataTypes.STRING,
     orderIndex: DataTypes.INTEGER
   }, {
     sequelize,
