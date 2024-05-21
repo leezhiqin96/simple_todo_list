@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const generateViewData = require('../middleware/generateViewData');
+const { isAuthenticated } = require('../middleware/auth');
 
 const UserController = require('../controllers/userController.controller');
 
@@ -12,25 +13,27 @@ router.route('/login')
   .post(UserController.loginUser);
 
 router.route('/')
-  .get(generateViewData, async function (req, res, next) {
+  .get([isAuthenticated, generateViewData], async function (req, res, next) {
     res.render('index', { title: 'Home', viewData: req.viewPackage })
   });
 
 // === Requests ===
-router.post('/logout', UserController.logoutUser);
-
-router.route('/users')
-  .post(UserController.createUser);
-
+// Unprotected
 router.get('/users/check', UserController.checkUserExists);
 
+//Protected
+router.post('/logout', isAuthenticated, UserController.logoutUser);
+
+router.route('/users')
+  .post(isAuthenticated, UserController.createUser);
+
+
 router.route('/users/:userID/tasks')
-  .get(UserController.getUserTasks)
-  .post(UserController.addUserTask);
+  .get(isAuthenticated, UserController.getUserTasks)
+  .post(isAuthenticated, UserController.addUserTask);
 
 router.route('/users/:userID/tasks/:taskID')
-  .get()
-  .put(UserController.updateUserTask)
+  .put(isAuthenticated, UserController.updateUserTask)
   .delete();
 
 module.exports = router

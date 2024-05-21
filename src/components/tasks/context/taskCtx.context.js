@@ -73,7 +73,7 @@ export default function TaskContextProvider({ children }) {
       const addTaskResult = await axios.post(`/users/${userID}/tasks`, { taskTitle: title }, {
         headers: { 'X-CSRF-Token': csrfToken }
       });
-      dispatchTasks({ type: 'ADD_TASK', payload: addTaskResult.data });
+      dispatchTasks({ type: 'ADD_TASK', payload: addTaskResult.data.newTask });
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -85,7 +85,7 @@ export default function TaskContextProvider({ children }) {
       const updateTaskResult = await axios.put(`/users/${userID}/tasks/${rowID}`, payload, {
         headers: { 'X-CSRF-Token': csrfToken }
       });
-      dispatchTasks({ type: 'UPDATE_TASK', payload: updateTaskResult.data.task });
+      dispatchTasks({ type: 'UPDATE_TASK', payload: updateTaskResult.data.updatedTask });
     } catch (error) {
       console.error('Error updating task:', error);
     }

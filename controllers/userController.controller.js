@@ -3,7 +3,7 @@ const { sequelize, User, Task } = require('../models/');
 const catchError = (res, msg, error, functionName) => {
   if (res != null) {
     console.log('Error - ', msg, functionName, error)
-    res.status(500).send({
+    res.status(500).json({
       message: msg, error: error.message
     });
 
@@ -14,21 +14,20 @@ const catchError = (res, msg, error, functionName) => {
 
 
 const createUser = async (req, res) => {
-  const transaction = await sequelize.transaction();
-
+  const { email, username, password, ...others } = req.body;
   try {
-    const { email, username, password, ...others } = req.body;
-    await User.create({
-      email,
-      userName: username,
-      password
-    }, { transaction })
+    const newUser = await sequelize.transaction(async () => {
+      const result = await User.create({
+        email,
+        userName: username,
+        password
+      })
 
-    await transaction.commit();
+      return result;
+    });
 
-    res.status(200).send({ message: 'Successfully Registered! You can now log in with your new credentials.' });
+    res.status(200).json({ message: 'Successfully Registered! You can now log in with your new credentials.', newUser });
   } catch (error) {
-    await transaction.rollback();
     catchError(res, "Something went wrong, please reload and try again!", error, 'createUser')
   }
 }
@@ -56,9 +55,9 @@ const loginUser = async (req, res) => {
     const user = await User.login(login, password);
     if (user) {
       req.session.userId = user.dataValues.id; // Store user ID in the session
-      res.status(200).send({ message: 'Login successful', redirectUrl: '/' });
+      res.status(200).json({ message: 'Login successful', redirectUrl: '/' });
     } else {
-      res.status(401).send({ message: 'Invalid Credentials' });
+      res.status(401).json({ message: 'Invalid Credentials' });
     }
   } catch (error) {
     catchError(res, error.message, error, 'loginUser')
@@ -68,9 +67,9 @@ const loginUser = async (req, res) => {
 const logoutUser = (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.status(500).send({ message: 'Failed to log out' });
+      return res.status(500).json({ message: 'Failed to log out' });
     }
-    res.status(200).send({ message: 'Logout successful', redirectUrl: '/login' });
+    res.status(200).json({ message: 'Logout successful', redirectUrl: '/login' });
   });
 };
 
@@ -86,7 +85,7 @@ const getUserTasks = async (req, res) => {
       }],
       order: [['orderIndex', 'ASC']]
     });
-    res.status(200).send(tasks);
+    res.status(200).json(tasks);
   } catch (error) {
     catchError(res, error.message, error, 'getUserTasks')
   }
@@ -124,7 +123,7 @@ const addUserTask = async (req, res) => {
       return newTask;
     });
 
-    res.status(200).send(result);
+    res.status(200).json({ newTask: result });
   } catch (error) {
     catchError(res, error.message, error, 'addUserTask');
   }
@@ -143,7 +142,7 @@ const updateUserTask = async (req, res) => {
       return updatedTask
     });
 
-    res.status(200).json({task: result})
+    res.status(200).json({ updatedTask: result })
   } catch (error) {
     catchError(res, error.message, error, 'updateUserTask');
   }

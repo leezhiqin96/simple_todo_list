@@ -65,9 +65,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Setup auth middleware
-app.use((req, res, next) => isAuthenticated(req, res, next));
-
 // Routers setup
 app.use('/', routes);
 
