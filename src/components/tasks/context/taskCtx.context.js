@@ -38,18 +38,19 @@ const tasksReducer = (state, action) => {
 
 export const TaskContext = createContext({
   userTasks: [],
-  addTask: async (title) => true
+  addTask: async (title) => true,
+  updateTask: async (title) => true
 });
 
 export default function TaskContextProvider({ children }) {
-  const [userTasks, dispatchTasks] = useReducer(tasksReducer, {tasks: [], loading: false});
+  const [userTasks, dispatchTasks] = useReducer(tasksReducer, { tasks: [], loading: false });
 
   useEffect(() => {
     fetchUserTasks();
   }, [])
 
   const fetchUserTasks = async () => {
-      setLoading(true);
+    setLoading(true);
     try {
       const userTasksList = await axios.get(`/users/${userID}/tasks`);
       setTasks(userTasksList.data);
@@ -79,10 +80,13 @@ export default function TaskContextProvider({ children }) {
     }
   };
 
-  const updateTask = async (task) => {
+  const updateTask = async (rowID, field, value) => {
+    const payload = { id: rowID, field, value };
     try {
-      const response = await axios.put(`/tasks/${task.id}`, task);
-      dispatchTasks({ type: 'UPDATE_TASK', payload: response.data });
+      const updateTaskResult = await axios.put(`/users/${userID}/tasks/${rowID}`, payload, {
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
+      dispatchTasks({ type: 'UPDATE_TASK', payload: updateTaskResult.data.task });
     } catch (error) {
       console.error('Error updating task:', error);
     }
@@ -99,7 +103,8 @@ export default function TaskContextProvider({ children }) {
 
   const ctxValue = {
     userTasks: userTasks,
-    addTask: addTask
+    addTask: addTask,
+    updateTask: updateTask
   }
 
   return (

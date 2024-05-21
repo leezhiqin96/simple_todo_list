@@ -1,13 +1,23 @@
 import React, { useState, useContext } from "react";
 import { Stack, Panel, Table, Input, SelectPicker, IconButton } from "rsuite";
-import { TaskContext } from "./taskCtx.context";
+import { TaskContext } from "./context/taskCtx.context";
 import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 
 const { Column, HeaderCell, Cell } = Table
+const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
+const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
 
-const EditableCell = ({ rowData, dataKey, icon, onExpand, ...props }) => {
+const EditableCell = ({ rowData, dataKey, icon, onExpand, onBlur, ...props }) => {
+    const [value, setValue] = useState(rowData[dataKey]);
+
+    const handleBlur = () => {
+        if (value !== rowData[dataKey]) {
+            onBlur(rowData.id, dataKey, value);
+        }
+    };
+
     return (
         <Cell {...props}>
             <Stack spacing={4}>
@@ -20,18 +30,23 @@ const EditableCell = ({ rowData, dataKey, icon, onExpand, ...props }) => {
                 )}
                 <Input
                     className="editable-cell-input"
-                    value={rowData[dataKey]}
+                    value={value}
                     size="sm"
+                    onChange={(value) => setValue(value)}
+                    onBlur={handleBlur}
                 />
             </Stack>
         </Cell>
     )
-}
+};
 
-const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
-const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
+const DropDownCell = ({ rowData, dataKey, options, defaultValue, onChange, ...props }) => {
+    const handleChange = (value) => {
+        if (value !== rowData[dataKey]) {
+            onChange(rowData.id, dataKey, value);
+        }
+    };
 
-const DropDownCell = ({ rowData, dataKey, options, defaultValue, ...props }) => {
     return (
         <Cell {...props}>
             <SelectPicker
@@ -42,13 +57,14 @@ const DropDownCell = ({ rowData, dataKey, options, defaultValue, ...props }) => 
                 cleanable={false}
                 block
                 style={{ flexGrow: 1 }}
+                onChange={handleChange}
             />
         </Cell>
     )
 }
 
 export default function TaskTable() {
-    const { userTasks, addTask } = useContext(TaskContext);
+    const { userTasks, addTask, updateTask } = useContext(TaskContext);
     const [expanded, setExpanded] = useState(false);
 
     const handleAddNewTask = async (event) => {
@@ -58,6 +74,14 @@ export default function TaskTable() {
             if (successful) {
                 event.target.value = '';
             }
+        }
+    }
+
+    const handleUpdateTask = async (rowID, field, value) => {
+        try {
+            await updateTask(rowID, field, value);
+        } catch (error) {
+            console.error("Error updating task:", error);
         }
     }
 
@@ -78,6 +102,7 @@ export default function TaskTable() {
                         dataKey="title"
                         icon={<FontAwesomeIcon icon={expanded ? faChevronDown : faChevronRight} />}
                         onExpand={() => setExpanded(!expanded)}
+                        onBlur={handleUpdateTask}
                     />
                 </Column>
 
@@ -88,12 +113,22 @@ export default function TaskTable() {
 
                 <Column flexGrow={1} verticalAlign="middle">
                     <HeaderCell>Status</HeaderCell>
-                    <DropDownCell dataKey="status" options={statusDropDown} defaultValue="Not Started" />
+                    <DropDownCell
+                        dataKey="status"
+                        options={statusDropDown}
+                        defaultValue="Not Started"
+                        onChange={handleUpdateTask}
+                    />
                 </Column>
 
                 <Column flexGrow={1} verticalAlign="middle">
                     <HeaderCell>Priority</HeaderCell>
-                    <DropDownCell dataKey="priority" options={priorityDropDown} defaultValue="Low" />
+                    <DropDownCell
+                        dataKey="priority"
+                        options={priorityDropDown}
+                        defaultValue="Low"
+                        onChange={handleUpdateTask}
+                    />
                 </Column>
 
                 <Column flexGrow={1} verticalAlign="middle">
@@ -103,8 +138,8 @@ export default function TaskTable() {
             </Table>
             <div role="row" className="input-table-row">
                 <div className="rs-table-body-row-wrapper">
-                    <Input 
-                        className="editable-cell-input" 
+                    <Input
+                        className="editable-cell-input"
                         placeholder="+ Add Task"
                         htmlSize={10}
                         onBlur={handleAddNewTask}

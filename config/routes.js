@@ -30,7 +30,7 @@ router.route('/users/:userID/tasks')
 
 router.route('/users/:userID/tasks/:taskID')
   .get()
-  .put()
+  .put(UserController.updateUserTask)
   .delete();
 
 module.exports = router

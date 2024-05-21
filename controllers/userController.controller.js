@@ -126,7 +126,26 @@ const addUserTask = async (req, res) => {
 
     res.status(200).send(result);
   } catch (error) {
-    catchError(res, error.message, error, 'addUserTask')
+    catchError(res, error.message, error, 'addUserTask');
+  }
+}
+
+const updateUserTask = async (req, res) => {
+  const taskID = req.params.taskID;
+  const { id, field, value } = req.body;
+
+  try {
+    const result = await sequelize.transaction(async () => {
+      const task = await Task.findByPk(taskID);
+      task[field] = value;
+
+      const updatedTask = await task.save();
+      return updatedTask
+    });
+
+    res.status(200).json({task: result})
+  } catch (error) {
+    catchError(res, error.message, error, 'updateUserTask');
   }
 }
 
@@ -136,5 +155,6 @@ module.exports = {
   loginUser,
   logoutUser,
   getUserTasks,
-  addUserTask
+  addUserTask,
+  updateUserTask
 }
