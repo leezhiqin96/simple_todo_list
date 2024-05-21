@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Stack, Table, Input, SelectPicker, IconButton, DatePicker } from "rsuite";
+import { Stack, Table, Input, SelectPicker, IconButton, DatePicker, Checkbox } from "rsuite";
 import { DateTime } from "luxon";
 
 const { Cell } = Table;
@@ -86,3 +86,14 @@ export const DateCell = ({ rowData, dataKey, ...props }) => {
 
   return <Cell {...props}>{displayDate}</Cell>
 }
+
+export const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
+  <Cell style={{ padding: "0 10px 0px 5px" }} {...props}>
+    <Checkbox
+      value={rowData[dataKey]}
+      inline
+      onChange={onChange}
+      checked={checkedKeys.some(item => item === rowData[dataKey])}
+    />
+  </Cell>
+);
