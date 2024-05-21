@@ -38,8 +38,8 @@ const tasksReducer = (state, action) => {
 
 export const TaskContext = createContext({
   userTasks: [],
-  addTask: async (title) => true,
-  updateTask: async (title) => true
+  addTask: async (title) => null,
+  updateTask: async (title) => null
 });
 
 export default function TaskContextProvider({ children }) {
@@ -74,7 +74,6 @@ export default function TaskContextProvider({ children }) {
         headers: { 'X-CSRF-Token': csrfToken }
       });
       dispatchTasks({ type: 'ADD_TASK', payload: addTaskResult.data });
-      return true;
     } catch (error) {
       console.error('Error adding task:', error);
     }

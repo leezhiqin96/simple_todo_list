@@ -1,94 +1,13 @@
 import React, { useState, useContext } from "react";
-import { Stack, Panel, Table, Input, SelectPicker, IconButton, DatePicker } from "rsuite";
+import { Panel, Table, Input } from "rsuite";
 import { TaskContext } from "./context/taskCtx.context";
 import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DateTime } from "luxon";
+import { DateCell, DatePickerCell, EditableCell, DropDownCell } from "./customCells.component";
 
-const { Column, HeaderCell, Cell } = Table
+const { Column, HeaderCell } = Table;
 const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
 const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
-
-const EditableCell = ({ rowData, dataKey, icon, onExpand, onBlur, ...props }) => {
-  const [value, setValue] = useState(rowData[dataKey]);
-
-  const handleBlur = () => {
-    if (value !== rowData[dataKey]) {
-      onBlur(rowData.id, dataKey, value);
-    }
-  };
-
-  return (
-    <Cell {...props}>
-      <Stack spacing={4}>
-        {icon && (
-          <IconButton
-            icon={icon}
-            appearance="link"
-            onClick={onExpand}
-          />
-        )}
-        <Input
-          className="editable-cell-input"
-          value={value}
-          size="sm"
-          onChange={(value) => setValue(value)}
-          onBlur={handleBlur}
-        />
-      </Stack>
-    </Cell>
-  )
-};
-
-const DropDownCell = ({ rowData, dataKey, options, defaultValue, onChange, ...props }) => {
-  const handleChange = (value) => {
-    if (value !== rowData[dataKey]) {
-      onChange(rowData.id, dataKey, value);
-    }
-  };
-
-  return (
-    <Cell {...props}>
-      <SelectPicker
-        appearance="subtle"
-        value={rowData[dataKey] || defaultValue}
-        data={options}
-        searchable={false}
-        cleanable={false}
-        block
-        style={{ flexGrow: 1 }}
-        onChange={handleChange}
-      />
-    </Cell>
-  )
-}
-
-const DatePickerCell = ({ rowData, dataKey, onChange, ...props }) => {
-  const date = DateTime.fromISO(rowData[dataKey]).toJSDate();
-
-  const handleChange = (value) => {
-    if (value !== rowData[dataKey]) {
-      onChange(rowData.id, dataKey, value);
-    }
-  };
-
-  return (
-    <Cell {...props}>
-      <DatePicker
-        appearance="subtle"
-        value={date}
-        block
-        onChange={handleChange}
-      />
-    </Cell>
-  )
-}
-
-const DateCell = ({ rowData, dataKey, ...props }) => {
-  const displayDate = DateTime.fromISO(rowData[dataKey]).toFormat('yyyy-MM-dd h:mm a');
-
-  return <Cell {...props}>{displayDate}</Cell>
-}
 
 export default function TaskTable() {
   const { userTasks, addTask, updateTask } = useContext(TaskContext);
@@ -97,10 +16,9 @@ export default function TaskTable() {
   const handleAddNewTask = async (event) => {
     const taskTitle = event.target.value;
     if (taskTitle) {
-      const successful = await addTask(taskTitle);
-      if (successful) {
-        event.target.value = '';
-      }
+      await addTask(taskTitle);
+      event.target.value = '';
+
     }
   }
 
@@ -137,7 +55,11 @@ export default function TaskTable() {
 
         <Column width={150} resizable verticalAlign="middle">
           <HeaderCell>Due Date</HeaderCell>
-          <DatePickerCell dataKey="dueDate" onChange={handleUpdateTask} />
+          <DatePickerCell
+            dataKey="dueDate"
+            onChange={handleUpdateTask}
+            placeholder={" "}
+          />
         </Column>
 
         <Column width={150} resizable verticalAlign="middle">
