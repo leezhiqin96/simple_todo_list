@@ -25,6 +25,11 @@ const tasksReducer = (state, action) => {
         ...state,
         tasks: action.payload,
       };
+    case 'LOAD_TASKS':
+      return {
+        ...state,
+        loading: action.payload
+      }
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
   }
@@ -36,16 +41,18 @@ export const TaskContext = createContext({
 });
 
 export default function TaskContextProvider({ children }) {
-  const [userTasks, dispatchTasks] = useReducer(tasksReducer, []);
+  const [userTasks, dispatchTasks] = useReducer(tasksReducer, {tasks: [], loading: false});
 
   useEffect(() => {
     fetchUserTasks();
   }, [])
 
   const fetchUserTasks = async () => {
+      setLoading(true);
     try {
       const userTasksList = await axios.get(`/users/${userID}/tasks`);
-      setTasks(userTasksList.data)
+      setTasks(userTasksList.data);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -54,6 +61,10 @@ export default function TaskContextProvider({ children }) {
   const setTasks = (tasks) => {
     dispatchTasks({ type: 'SET_TASKS', payload: tasks });
   };
+
+  const setLoading = (loading) => {
+    dispatchTasks({ type: 'LOAD_TASKS', payload: loading });
+  }
 
 
   const addTask = async (task) => {

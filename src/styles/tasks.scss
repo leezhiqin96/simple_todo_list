@@ -1,0 +1,30 @@
+.editable-cell-input {
+    border: none;
+
+    &:hover {
+        border: 1px solid #e5e5ea;
+    }
+}
+
+.input-table-row {
+    height: 60px;
+    overflow: hidden;
+    width: 100%;
+    padding: 13px 10px;
+    box-sizing: border-box;
+    border: 1px solid #f2f2f5;
+    color: #808080;
+
+    .rs-table-body-row-wrapper {
+        display: flex;
+    }
+
+    .editable-cell-input {
+        flex-basis: 20%;
+        margin: 4px;
+
+        &:active {
+            border: 1px solid #3498ff;
+        }
+    }
+}

@@ -11,5 +11,3 @@ if (navbarElement) {
     const navbar = ReactDOM.createRoot(navbarElement);
     navbar.render(<SideNavBar />);
 }
-
-// Adds navbar component here

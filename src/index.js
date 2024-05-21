@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import TaskContextProvider from "./components/tasks/context/taskCtx.context";
 
 import TaskTable from "./components/tasks/context/taskTable.component";
+import './styles/tasks.scss'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
