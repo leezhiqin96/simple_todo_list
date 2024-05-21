@@ -1,9 +1,8 @@
 import React, { useState, useContext } from "react";
-import { Stack, Panel, Table, Input, SelectPicker, IconButton } from "rsuite";
+import { Stack, Panel, Table, Input, SelectPicker, IconButton, DatePicker } from "rsuite";
 import { TaskContext } from "./context/taskCtx.context";
 import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 
 const { Column, HeaderCell, Cell } = Table
 const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
@@ -63,6 +62,26 @@ const DropDownCell = ({ rowData, dataKey, options, defaultValue, onChange, ...pr
     )
 }
 
+const DateCell = ({ rowData, dataKey, onChange, ...props }) => {
+    const handleChange = (value) => {
+        if (value !== rowData[dataKey]) {
+            onChange(rowData.id, dataKey, value);
+        }
+    };
+
+    return (
+        <Cell {...props}>
+            <DatePicker
+                appearance="subtle"
+                value={rowData[dataKey]}
+                block
+                // style={{ flexGrow: 1 }}
+                onChange={handleChange}
+            />
+        </Cell>
+    )
+}
+
 export default function TaskTable() {
     const { userTasks, addTask, updateTask } = useContext(TaskContext);
     const [expanded, setExpanded] = useState(false);
@@ -108,7 +127,7 @@ export default function TaskTable() {
 
                 <Column flexGrow={1} verticalAlign="middle">
                     <HeaderCell>Due Date</HeaderCell>
-                    <Cell dataKey="dueDate" />
+                    <DateCell dataKey="dueDate" onChange={handleUpdateTask} />
                 </Column>
 
                 <Column flexGrow={1} verticalAlign="middle">
