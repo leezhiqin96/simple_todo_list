@@ -3,6 +3,7 @@ import { Stack, Panel, Table, Input, SelectPicker, IconButton } from "rsuite";
 import { TaskContext } from "./taskCtx.context";
 import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
 
 const { Column, HeaderCell, Cell } = Table
 
@@ -47,11 +48,17 @@ const DropDownCell = ({ rowData, dataKey, options, defaultValue, ...props }) => 
 }
 
 export default function TaskTable() {
-    const { userTasks } = useContext(TaskContext);
+    const { userTasks, addTask } = useContext(TaskContext);
     const [expanded, setExpanded] = useState(false);
 
-    const handleAddNewTask = (event) => {
-        const value = event.target.value;
+    const handleAddNewTask = async (event) => {
+        const taskTitle = event.target.value;
+        if (taskTitle) {
+            const successful = await addTask(taskTitle);
+            if (successful) {
+                event.target.value = '';
+            }
+        }
     }
 
     return (

@@ -37,7 +37,8 @@ const tasksReducer = (state, action) => {
 
 
 export const TaskContext = createContext({
-  userTasks: []
+  userTasks: [],
+  addTask: async (title) => true
 });
 
 export default function TaskContextProvider({ children }) {
@@ -66,11 +67,13 @@ export default function TaskContextProvider({ children }) {
     dispatchTasks({ type: 'LOAD_TASKS', payload: loading });
   }
 
-
-  const addTask = async (task) => {
+  const addTask = async (title) => {
     try {
-      const response = await axios.post('/tasks', task);
-      dispatchTasks({ type: 'ADD_TASK', payload: response.data });
+      const addTaskResult = await axios.post(`/users/${userID}/tasks`, { taskTitle: title }, {
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
+      dispatchTasks({ type: 'ADD_TASK', payload: addTaskResult.data });
+      return true;
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -95,7 +98,8 @@ export default function TaskContextProvider({ children }) {
   };
 
   const ctxValue = {
-    userTasks: userTasks
+    userTasks: userTasks,
+    addTask: addTask
   }
 
   return (

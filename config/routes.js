@@ -26,7 +26,7 @@ router.get('/users/check', UserController.checkUserExists);
 
 router.route('/users/:userID/tasks')
   .get(UserController.getUserTasks)
-  .post();
+  .post(UserController.addUserTask);
 
 router.route('/users/:userID/tasks/:taskID')
   .get()

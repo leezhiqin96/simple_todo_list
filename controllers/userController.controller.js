@@ -82,7 +82,7 @@ const getUserTasks = async (req, res) => {
       where: { parentTaskID: null, userID },
       include: [{
         model: Task,
-        as: 'subtasks', // Include the associated subtasks
+        as: 'subtasks',
       }],
       order: [['orderIndex', 'ASC']]
     });
@@ -92,10 +92,49 @@ const getUserTasks = async (req, res) => {
   }
 }
 
+const addUserTask = async (req, res) => {
+  const userID = req.params.userID;
+  const taskTitle = req.body.taskTitle
+
+  try {
+    const result = await sequelize.transaction(async () => {
+      const user = await User.findOne({
+        where: { id: userID },
+        include: [{
+          model: Task,
+          as: 'tasks'
+        }],
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Filter out subtasks to get only parent tasks
+      const parentTasks = user.tasks.filter(task => task.parentTaskID === null);
+      // Find the maximum orderIndex among parent tasks
+      const maxOrderIndex = parentTasks.length ? Math.max(...parentTasks.map(task => task.orderIndex)) : 0;
+      const newTask = await Task.create({
+        title: taskTitle,
+        status: 'Not Started',
+        priority: 'Low',
+        orderIndex: maxOrderIndex + 1,
+        userID: user.id,
+      });
+
+      return newTask;
+    });
+
+    res.status(200).send(result);
+  } catch (error) {
+    catchError(res, error.message, error, 'addUserTask')
+  }
+}
+
 module.exports = {
   createUser,
   checkUserExists,
   loginUser,
   logoutUser,
-  getUserTasks
+  getUserTasks,
+  addUserTask
 }
