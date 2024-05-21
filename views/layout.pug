@@ -10,7 +10,7 @@ html
       const userEmail = '!{viewData.user.email}';
       const csrfToken = '!{viewData.csrfToken}'
   body(ondragstart="return false;" ondrop="return false;")
-    div#side-nav
     div#main-content(class= 'container body-content')
+      div#side-nav  
       script(src= '/dist/layout.js')
       block content

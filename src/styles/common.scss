@@ -13,6 +13,23 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+#main-content {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  
+  #root {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+}
+
+.rs-panel-header {
+  font-size: 2em;
+}
+
+
 @media only screen and (max-width: 768px) {
   body {
     font-size: 12px;
@@ -33,6 +50,6 @@ body {
 
 @media only screen and (min-width: 1441px) and (max-width: 2560px) {
   body {
-    font-size: 20px;
+    font-size: 18px;
   }
 }
