@@ -1,18 +1,30 @@
 const isAuthenticated = async (req, res, next) => {
-    if (req.session.userId) {
-        if (req.path === '/login') {
-            let redirectUrl = typeof req.query.redirect != 'undefined' ? decodeURIComponent(req.query.redirect) : '/';
-            console.log(redirectUrl);
-            return res.redirect(redirectUrl);
-        }
-        return next();
+  if (req.session.userId) {
+    if (req.path === '/login') {
+      let redirectUrl = typeof req.query.redirect != 'undefined' ? decodeURIComponent(req.query.redirect) : '/';
+      console.log(redirectUrl);
+      return res.redirect(redirectUrl);
     }
-    // Not authenticated and not login path
-    if (req.path !== '/login') {
-        let redirectUrl = req.originalUrl == '/' ? '/' : '?redirect=' + encodeURIComponent(req.originalUrl);
-        return res.redirect('/login' + redirectUrl);
-    }
-    next();
+    return next();
+  }
+  // Not authenticated and not login path
+  if (req.path !== '/login') {
+    let redirectUrl = req.originalUrl == '/' ? '/' : '?redirect=' + encodeURIComponent(req.originalUrl);
+    return res.redirect('/login' + redirectUrl);
+  }
+  next();
 }
 
-module.exports = { isAuthenticated };
+const isAuthorized = async (req, res, next) => {
+  if (!req.session.userId) {
+    return res.status(401).send({ message: 'Unauthorized' });
+  }
+
+  if (req.params.userID && req.params.userID !== req.session.userId.toString()) {
+    return res.status(403).send({ message: 'Unauthorized' });
+  }
+
+  next();
+};
+
+module.exports = { isAuthenticated, isAuthorized };
