@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { sequelize, User, Task } = require('../models/');
 
 const catchError = (res, msg, error, functionName) => {
@@ -148,6 +149,30 @@ const updateUserTask = async (req, res) => {
   }
 }
 
+const deleteUserTask = async (req, res) => {
+  const userID = req.params.userID;
+  const idList = req.body;
+
+  if (!Array.isArray(idList) || idList.length === 0) {
+    return res.status(400).json({ message: 'Invalid request: ids must be a non-empty array' });
+  }
+
+  try {
+    await sequelize.transaction(async () => {
+      return await Task.destroy({
+        where: {
+          id: { [Op.in]: idList },
+          userID: userID
+        }
+      })
+    });
+
+    res.status(200).json({ message: 'Tasks deleted successfully' });
+  } catch (error) {
+    catchError(res, error.message, error, 'updateUserTask');
+  }
+}
+
 module.exports = {
   createUser,
   checkUserExists,
@@ -155,5 +180,6 @@ module.exports = {
   logoutUser,
   getUserTasks,
   addUserTask,
-  updateUserTask
+  updateUserTask,
+  deleteUserTask
 }

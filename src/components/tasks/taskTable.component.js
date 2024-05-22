@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { Panel, Table, Input, Checkbox, Stack, IconButton } from "rsuite";
+import { Panel, Table, Input, Checkbox, Stack, IconButton, useToaster, Message } from "rsuite";
 import { TaskContext } from "./context/taskCtx.context";
 import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,10 +11,20 @@ const { Column, HeaderCell } = Table;
 const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
 const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
 
+const renderMessageBox = (type, message) => {
+  return (
+    <Message showIcon type={type} closable>
+      {message}
+    </Message>
+  )
+}
+
 export default function TaskTable() {
-  const { userTasks, addTask, updateTask } = useContext(TaskContext);
+  const { userTasks, addTask, updateTask, deleteTasks } = useContext(TaskContext);
   const [expanded, setExpanded] = useState(false);
   const [checkedKeys, setCheckKeys] = useState([]);
+
+  const toaster = useToaster();
 
   // Checkbox logic ===========================================================
   let headerChecked = false;
@@ -54,7 +64,14 @@ export default function TaskTable() {
   }
 
   const handleDeleteTask = async () => {
+    try {
+      const deleteResult = await deleteTasks(checkedKeys);
+      toaster.push(renderMessageBox("success", deleteResult.data.message), { placement: "topCenter", duration: 2000 });
 
+      setCheckKeys([]);
+    } catch (error) {
+      toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 2000 });
+    }
   }
 
   return (
@@ -83,7 +100,7 @@ export default function TaskTable() {
           </Column>
 
 
-          <Column flexGrow={2} fixed verticalAlign="middle" resizable>
+          <Column minWidth={200} flexGrow={2} fixed verticalAlign="middle" resizable>
             <HeaderCell>Task</HeaderCell>
             <EditableCell
               dataKey="title"

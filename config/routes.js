@@ -21,19 +21,19 @@ router.route('/')
 // Unprotected
 router.get('/users/check', UserController.checkUserExists);
 
+router.route('/users')
+  .post(UserController.createUser);
+
 //Protected
 router.post('/logout', isAuthenticated, UserController.logoutUser);
-
-router.route('/users')
-  .post(isAuthenticated, UserController.createUser);
 
 
 router.route('/users/:userID/tasks')
   .get(isAuthenticated, UserController.getUserTasks)
-  .post(isAuthenticated, UserController.addUserTask);
+  .post(isAuthenticated, UserController.addUserTask)
+  .delete(isAuthenticated, UserController.deleteUserTask);
 
 router.route('/users/:userID/tasks/:taskID')
   .put(isAuthenticated, UserController.updateUserTask)
-  .delete();
 
 module.exports = router

@@ -1,6 +1,8 @@
 import React, { createContext, useReducer, useEffect } from "react";
 import axios from "axios";
 
+axios.defaults.headers.common['X-CSRF-Token'] = csrfToken;
+
 const tasksReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_TASK':
@@ -15,10 +17,10 @@ const tasksReducer = (state, action) => {
           task.id === action.payload.id ? action.payload : task
         ),
       };
-    case 'DELETE_TASK':
+    case 'DELETE_TASKS':
       return {
         ...state,
-        tasks: state.tasks.filter(task => task.id !== action.payload.id),
+        tasks: state.tasks.filter(task => !action.payload.idList.includes(task.id)),
       };
     case 'SET_TASKS':
       return {
@@ -39,7 +41,8 @@ const tasksReducer = (state, action) => {
 export const TaskContext = createContext({
   userTasks: [],
   addTask: async (title) => null,
-  updateTask: async (title) => null
+  updateTask: async (title) => null,
+  deleteTasks: async (tasksIDList) => { }
 });
 
 export default function TaskContextProvider({ children }) {
@@ -70,9 +73,7 @@ export default function TaskContextProvider({ children }) {
 
   const addTask = async (title) => {
     try {
-      const addTaskResult = await axios.post(`/users/${userID}/tasks`, { taskTitle: title }, {
-        headers: { 'X-CSRF-Token': csrfToken }
-      });
+      const addTaskResult = await axios.post(`/users/${userID}/tasks`, { taskTitle: title });
       dispatchTasks({ type: 'ADD_TASK', payload: addTaskResult.data.newTask });
     } catch (error) {
       console.error('Error adding task:', error);
@@ -82,28 +83,32 @@ export default function TaskContextProvider({ children }) {
   const updateTask = async (rowID, field, value) => {
     const payload = { id: rowID, field, value };
     try {
-      const updateTaskResult = await axios.put(`/users/${userID}/tasks/${rowID}`, payload, {
-        headers: { 'X-CSRF-Token': csrfToken }
-      });
+      const updateTaskResult = await axios.put(`/users/${userID}/tasks/${rowID}`, payload);
       dispatchTasks({ type: 'UPDATE_TASK', payload: updateTaskResult.data.updatedTask });
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
 
-  const deleteTask = async (taskId) => {
-    try {
-      await axios.delete(`/tasks/${taskId}`);
-      dispatchTasks({ type: 'DELETE_TASK', payload: { id: taskId } });
-    } catch (error) {
-      console.error('Error deleting task:', error);
-    }
+  const deleteTasks = (tasksIDList) => {
+    return new Promise((resolve, reject) => {
+      axios.delete(`/users/${userID}/tasks`, { data: tasksIDList })
+        .then((deleteTasksResult) => {
+          dispatchTasks({ type: 'DELETE_TASKS', payload: { idList: tasksIDList } });
+          resolve(deleteTasksResult);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   };
+
 
   const ctxValue = {
     userTasks: userTasks,
     addTask: addTask,
-    updateTask: updateTask
+    updateTask: updateTask,
+    deleteTasks
   }
 
   return (
