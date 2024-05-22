@@ -60,6 +60,7 @@ const LoginPanel = forwardRef(({ clickRegister, formValue, onValueChange, ...rem
             icon={<FontAwesomeIcon icon={faLock} />}
             placeholder="Password"
             type="password"
+            onPressEnter={loginUser}
           />
         </Form.Group>
 

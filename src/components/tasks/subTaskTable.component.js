@@ -91,6 +91,7 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
               className="editable-cell-input"
               placeholder="+ Add Subtask"
               onBlur={handleAddNewSubtask}
+              onPressEnter={handleAddNewSubtask}
             />
           </div>
         </div>
