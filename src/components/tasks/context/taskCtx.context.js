@@ -37,6 +37,15 @@ const tasksReducer = (state, action) => {
         ...state,
         selectedTask: action.payload
       }
+    case 'ADD_SUB_TASK':
+      return {
+        ...state,
+        tasks: state.tasks.map(task =>
+          task.id === action.payload.taskID
+            ? { ...task, subtasks: [...task.subtasks, action.payload.subtask] }
+            : task
+        ),
+      };
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
   }
@@ -118,13 +127,23 @@ export default function TaskContextProvider({ children }) {
     dispatchTasks({ type: 'SELECT_TASK', payload: taskID });
   }
 
+  const addSubTask = async (taskID, title) => {
+    try {
+      const addTaskResult = await axios.post(`/users/${userID}/tasks/${taskID}`, { taskTitle: title });
+      dispatchTasks({ type: 'ADD_SUB_TASK', payload: { taskID, subtask: addTaskResult.data.newTask } });
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+  }
+
 
   const ctxValue = {
     userTasks,
     addTask,
     updateTask,
     deleteTasks,
-    selectTask
+    selectTask,
+    addSubTask
   }
 
   return (

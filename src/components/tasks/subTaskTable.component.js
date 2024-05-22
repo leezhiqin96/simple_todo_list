@@ -1,6 +1,7 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useContext } from "react";
 import { Stack, Table, Input } from "rsuite";
 import { DateCell, DatePickerCell, TaskTitleCell, DropDownCell, CheckCell } from "./customCells.component";
+import { TaskContext } from "./context/taskCtx.context";
 
 const { Column, HeaderCell } = Table;
 
@@ -8,6 +9,16 @@ const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((
 const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
 
 const SubTaskTable = forwardRef(({ data }, ref) => {
+  const { addSubTask, userTasks } = useContext(TaskContext);
+
+  const handleAddNewSubtask = async (event) => {
+    const taskTitle = event.target.value;
+    if (taskTitle) {
+      await addSubTask(userTasks.selectedTask, taskTitle);
+      event.target.value = '';
+    }
+  }
+
   return (
     <Stack direction="column" alignItems="stretch">
       <Stack.Item style={{ width: '100%' }}>
@@ -70,11 +81,6 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
             // onChange={handleUpdateTask}
             />
           </Column>
-
-          <Column width={150} resizable verticalAlign="middle">
-            <HeaderCell>Last Updated</HeaderCell>
-            <DateCell dataKey="updatedAt" />
-          </Column>
         </Table>
       </Stack.Item>
 
@@ -84,6 +90,7 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
             <Input
               className="editable-cell-input"
               placeholder="+ Add Subtask"
+              onBlur={handleAddNewSubtask}
             />
           </div>
         </div>

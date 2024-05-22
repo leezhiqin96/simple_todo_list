@@ -18,12 +18,6 @@ const renderMessageBox = (type, message) => {
   )
 }
 
-const renderRowExpanded = (rowID, tasks, ref) => {
-  const selectedTask = tasks.find(task => task.id == rowID);
-  const data = selectedTask.subtasks;
-  return <SubTaskTable data={data} ref={ref} />
-}
-
 export default function TaskTable() {
   const { userTasks, addTask, updateTask, deleteTasks, selectTask } = useContext(TaskContext);
   const [checkedKeys, setCheckKeys] = useState([]);
@@ -84,6 +78,17 @@ export default function TaskTable() {
     } catch (error) {
       toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 2000 });
     }
+  }
+
+  const renderRowExpanded = (rowID, tasks, ref) => {
+    const selectedTask = tasks.find(task => task.id == rowID);
+    const data = selectedTask.subtasks;
+    return (
+      <SubTaskTable
+        data={data}
+        ref={ref}
+      />
+    )
   }
 
   return (

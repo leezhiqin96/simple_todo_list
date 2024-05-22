@@ -173,6 +173,44 @@ const deleteUserTask = async (req, res) => {
   }
 }
 
+const addUserSubtask = async (req, res) => {
+  const userID = req.params.userID;
+  const parentTaskID = req.params.taskID;
+  const taskTitle = req.body.taskTitle;
+
+  try {
+    const result = await sequelize.transaction(async () => {
+      const parentTask = await Task.findOne({
+        where: { id: parentTaskID },
+        include: [{
+          model: Task,
+          as: 'subtasks'
+        }],
+      });
+      if (!parentTask) {
+        throw new Error('Tasks not found');
+      }
+
+      // Find the maximum orderIndex among subtasks
+      const maxOrderIndex = parentTask.subtasks.length ? Math.max(...parentTask.subtasks.map(task => task.orderIndex)) : 0;
+      const newTask = await Task.create({
+        title: taskTitle,
+        status: 'Not Started',
+        priority: 'Low',
+        orderIndex: maxOrderIndex + 1,
+        userID: userID,
+        parentTaskID: parentTask.id
+      });
+
+      return newTask;
+    });
+
+    res.status(200).json({ newTask: result });
+  } catch (error) {
+    catchError(res, error.message, error, 'addUserSubtask');
+  }
+}
+
 module.exports = {
   createUser,
   checkUserExists,
@@ -181,5 +219,6 @@ module.exports = {
   getUserTasks,
   addUserTask,
   updateUserTask,
-  deleteUserTask
+  deleteUserTask,
+  addUserSubtask
 }

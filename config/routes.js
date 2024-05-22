@@ -35,5 +35,6 @@ router.route('/users/:userID/tasks')
 
 router.route('/users/:userID/tasks/:taskID')
   .put(isAuthenticated, UserController.updateUserTask)
+  .post(isAuthenticated, UserController.addUserSubtask)
 
 module.exports = router
