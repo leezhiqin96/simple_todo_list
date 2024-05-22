@@ -1,6 +1,6 @@
-import React, { forwardRef, useContext } from "react";
-import { Stack, Table, Input } from "rsuite";
-import { DateCell, DatePickerCell, TaskTitleCell, DropDownCell, CheckCell } from "./customCells.component";
+import React, { useContext } from "react";
+import { Stack, Table, Input, Checkbox } from "rsuite";
+import { DatePickerCell, TaskTitleCell, DropDownCell, CheckCell } from "./customCells.component";
 import { TaskContext } from "./context/taskCtx.context";
 
 const { Column, HeaderCell } = Table;
@@ -8,8 +8,24 @@ const { Column, HeaderCell } = Table;
 const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
 const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
 
-const SubTaskTable = forwardRef(({ data, handleUpdateTask }, ref) => {
-  const { addSubTask, userTasks } = useContext(TaskContext);
+const SubTaskTable = ({ data, handleSubtaskCheck, subtaskCheckedKeys, setSubtaskCheckedKeys }) => {
+  const { addSubTask, userTasks, updateTask, deleteTasks } = useContext(TaskContext);
+
+  // Checkbox logic ===========================================================
+  let headerChecked = false;
+  let indeterminate = false;
+  if ((subtaskCheckedKeys.length === data.length) && data.length !== 0) {
+    headerChecked = true;
+  } else if (subtaskCheckedKeys.length === 0) {
+    headerChecked = false;
+  } else if (subtaskCheckedKeys.length > 0 && subtaskCheckedKeys.length < data.length) {
+    indeterminate = true;
+  }
+
+  const handleCheckAllSubtasks = (value, headerChecked) => {
+    const keys = headerChecked ? data.map(item => item.id) : [];
+    setSubtaskCheckedKeys(keys)
+  }
 
   const handleAddNewSubtask = async (event) => {
     const taskTitle = event.target.value;
@@ -19,36 +35,41 @@ const SubTaskTable = forwardRef(({ data, handleUpdateTask }, ref) => {
     }
   }
 
+  const handleUpdateSubtask = async (rowID, field, value) => {
+    try {
+      await updateTask(rowID, field, value, userTasks.selectedTask);
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  }
+
   return (
-    <Stack direction="column" alignItems="stretch">
-      <Stack.Item style={{ width: '100%' }}>
+    <Stack direction="column" alignItems="stretch" style={{ width: '100%', height: '100%' }}>
+      <Stack.Item flex={1}>
         <Table
           data={data}
           bordered
           cellBordered
-          autoHeight
+          fillHeight
           rowHeight={60}
           rowKey="id"
-          affixHeader
-          affixHorizontalScrollbar
-          ref={ref}
         >
-          {/* <Column verticalAlign="middle" width={50} fixed>
-              <HeaderCell style={{ padding: "0 10px 0px 5px" }}>
-                <Checkbox
-                  checked={headerChecked}
-                  indeterminate={indeterminate}
-                  onChange={handleCheckAll}
-                />
-              </HeaderCell>
-              <CheckCell dataKey="id" checkedKeys={checkedKeys} onChange={handleCheck} />
-            </Column> */}
+          <Column verticalAlign="middle" width={50} fixed>
+            <HeaderCell style={{ padding: "0 10px 0px 5px" }}>
+              <Checkbox
+                checked={headerChecked}
+                indeterminate={indeterminate}
+                onChange={handleCheckAllSubtasks}
+              />
+            </HeaderCell>
+            <CheckCell dataKey="id" checkedKeys={subtaskCheckedKeys} onChange={handleSubtaskCheck} />
+          </Column>
 
-          <Column minWidth={200} flexGrow={2} fixed verticalAlign="middle" resizable>
+          <Column minWidth={200} flexGrow={1} fixed verticalAlign="middle" resizable>
             <HeaderCell>Subtask</HeaderCell>
             <TaskTitleCell
               dataKey="title"
-              onBlur={handleUpdateTask}
+              onBlur={handleUpdateSubtask}
             />
           </Column>
 
@@ -57,27 +78,27 @@ const SubTaskTable = forwardRef(({ data, handleUpdateTask }, ref) => {
             <DatePickerCell
               dataKey="dueDate"
               placeholder={" "}
-              onChange={handleUpdateTask}
+              onChange={handleUpdateSubtask}
             />
           </Column>
 
-          <Column width={150} resizable verticalAlign="middle">
+          <Column width={200} resizable verticalAlign="middle">
             <HeaderCell>Status</HeaderCell>
             <DropDownCell
               dataKey="status"
               options={statusDropDown}
               defaultValue="Not Started"
-              onChange={handleUpdateTask}
+              onChange={handleUpdateSubtask}
             />
           </Column>
 
-          <Column width={150} resizable verticalAlign="middle">
+          <Column width={200} resizable verticalAlign="middle">
             <HeaderCell>Priority</HeaderCell>
             <DropDownCell
               dataKey="priority"
               options={priorityDropDown}
               defaultValue="Low"
-              onChange={handleUpdateTask}
+              onChange={handleUpdateSubtask}
             />
           </Column>
         </Table>
@@ -97,6 +118,6 @@ const SubTaskTable = forwardRef(({ data, handleUpdateTask }, ref) => {
       </Stack.Item>
     </Stack>
   )
-});
+};
 
 export default SubTaskTable;

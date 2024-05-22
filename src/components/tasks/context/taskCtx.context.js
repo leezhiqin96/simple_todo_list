@@ -37,7 +37,7 @@ const tasksReducer = (state, action) => {
         ...state,
         selectedTask: action.payload
       }
-    case 'ADD_SUB_TASK':
+    case 'ADD_SUBTASK':
       return {
         ...state,
         tasks: state.tasks.map(task =>
@@ -59,6 +59,18 @@ const tasksReducer = (state, action) => {
             };
           }
           return task;
+        }),
+      };
+    case 'DELETE_SUBTASKS':
+      return {
+        ...state,
+        tasks: state.tasks.map(task => {
+          return {
+            ...task,
+            subtasks: task.subtasks.filter(subtask => (
+              !action.payload.idList.includes(subtask.id)
+            ))
+          }
         }),
       };
     default:
@@ -120,7 +132,7 @@ export default function TaskContextProvider({ children }) {
   const addSubTask = async (taskID, title) => {
     try {
       const addTaskResult = await axios.post(`/users/${userID}/tasks/${taskID}`, { taskTitle: title });
-      dispatchTasks({ type: 'ADD_SUB_TASK', payload: { taskID, subtask: addTaskResult.data.newTask } });
+      dispatchTasks({ type: 'ADD_SUBTASK', payload: { taskID, subtask: addTaskResult.data.newTask } });
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -144,11 +156,15 @@ export default function TaskContextProvider({ children }) {
   };
 
 
-  const deleteTasks = (tasksIDList) => {
+  const deleteTasks = (tasksIDList, isSubtask = false) => {
     return new Promise((resolve, reject) => {
       axios.delete(`/users/${userID}/tasks`, { data: tasksIDList })
         .then((deleteTasksResult) => {
-          dispatchTasks({ type: 'DELETE_TASKS', payload: { idList: tasksIDList } });
+          if (isSubtask) {
+            dispatchTasks({ type: 'DELETE_SUBTASKS', payload: { idList: tasksIDList } });
+          } else {
+            dispatchTasks({ type: 'DELETE_TASKS', payload: { idList: tasksIDList } });
+          }
           resolve(deleteTasksResult);
         })
         .catch((error) => {

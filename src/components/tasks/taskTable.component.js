@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Panel, Table, Input, Checkbox, Stack, IconButton, useToaster, Message } from "rsuite";
 import TrashIcon from '@rsuite/icons/Trash';
 
@@ -18,19 +18,40 @@ const renderMessageBox = (type, message) => {
   )
 }
 
+const renderRowExpanded = (rowID, tasks, handleSubtaskCheck, subtaskCheckedKeys, setSubtaskCheckedKeys) => {
+  const selectedTask = tasks.find(task => task.id == rowID);
+  const data = selectedTask.subtasks;
+
+  return (
+    <SubTaskTable
+      data={data}
+      handleSubtaskCheck={handleSubtaskCheck}
+      subtaskCheckedKeys={subtaskCheckedKeys}
+      setSubtaskCheckedKeys={setSubtaskCheckedKeys}
+    />
+  )
+}
+
 export default function TaskTable() {
   const { userTasks, addTask, updateTask, deleteTasks, selectTask } = useContext(TaskContext);
   const [checkedKeys, setCheckKeys] = useState([]);
-  const [expandedRowHeight, setExpandedRowHeight] = useState(300);
+  const [subtaskCheckedKeys, setSubtaskCheckedKeys] = useState([]);
+  const [checkboxDisabled, setCheckboxDisabled] = useState(false);
   const toaster = useToaster();
-  const subTableRef = useRef(null);
 
   useEffect(() => {
-    // Gets the subtable height
-    if (subTableRef.current) {
-      setExpandedRowHeight(subTableRef.current.root.clientHeight + 200)
+    // Whenever subtasks are checked, disable parent task checkboxs
+    if (subtaskCheckedKeys.length > 0) {
+      setCheckboxDisabled(true);
+    } else {
+      setCheckboxDisabled(false);
     }
-  }, [subTableRef.current])
+  }, [subtaskCheckedKeys])
+
+  useEffect(() => {
+    // Uncheck any checked subtasks whenever selected task has been changed
+    setSubtaskCheckedKeys([]);
+  }, [userTasks.selectedTask])
 
   // Checkbox logic ===========================================================
   let headerChecked = false;
@@ -48,10 +69,16 @@ export default function TaskTable() {
     const keys = headerChecked ? userTasks.tasks.map(item => item.id) : [];
     setCheckKeys(keys)
   };
-  const handleCheck = (value, checked) => {
-    const keys = checked ? [...checkedKeys, value] : checkedKeys.filter(item => item !== value);
+  const handleCheck = (taskID, checked) => {
+    const keys = checked ? [...checkedKeys, taskID] : checkedKeys.filter(item => item !== taskID);
     setCheckKeys(keys)
   };
+
+  // Handle Subtask Check Events
+  const handleSubtaskCheck = (subtaskID, checked) => {
+    const keys = checked ? [...subtaskCheckedKeys, subtaskID] : subtaskCheckedKeys.filter(item => item !== subtaskID);
+    setSubtaskCheckedKeys(keys);
+  }
 
   const handleAddNewTask = async (event) => {
     const taskTitle = event.target.value;
@@ -70,26 +97,16 @@ export default function TaskTable() {
   }
 
   const handleDeleteTask = async () => {
+    const isSubtask = subtaskCheckedKeys.length > 0
+    const keysToSend = isSubtask ? subtaskCheckedKeys : checkedKeys
     try {
-      const deleteResult = await deleteTasks(checkedKeys);
+      const deleteResult = await deleteTasks(keysToSend, isSubtask);
       toaster.push(renderMessageBox("success", deleteResult.data.message), { placement: "topCenter", duration: 2000 });
 
       setCheckKeys([]);
     } catch (error) {
       toaster.push(renderMessageBox("error", error.response.data.message), { placement: "topCenter", duration: 2000 });
     }
-  }
-
-  const renderRowExpanded = (rowID, tasks, ref) => {
-    const selectedTask = tasks.find(task => task.id == rowID);
-    const data = selectedTask.subtasks;
-    return (
-      <SubTaskTable
-        data={data}
-        ref={ref}
-        handleUpdateTask={handleUpdateTask}
-      />
-    )
   }
 
   return (
@@ -106,10 +123,16 @@ export default function TaskTable() {
           affixHeader
           affixHorizontalScrollbar
           expandedRowKeys={[userTasks.selectedTask]}
-          renderRowExpanded={(rowData) => (
-            renderRowExpanded(rowData.id, userTasks.tasks, subTableRef)
-          )}
-          rowExpandedHeight={expandedRowHeight}
+          renderRowExpanded={(rowData) =>
+            renderRowExpanded(
+              rowData.id,
+              userTasks.tasks,
+              handleSubtaskCheck,
+              subtaskCheckedKeys,
+              setSubtaskCheckedKeys
+            )
+          }
+          rowExpandedHeight={400}
         >
           <Column verticalAlign="middle" width={50} fixed>
             <HeaderCell style={{ padding: "0 10px 0px 5px" }}>
@@ -117,12 +140,24 @@ export default function TaskTable() {
                 checked={headerChecked}
                 indeterminate={indeterminate}
                 onChange={handleCheckAll}
+                disabled={checkboxDisabled}
               />
             </HeaderCell>
-            <CheckCell dataKey="id" checkedKeys={checkedKeys} onChange={handleCheck} />
+            <CheckCell
+              dataKey="id"
+              checkedKeys={checkedKeys}
+              onChange={handleCheck}
+              disabled={checkboxDisabled}
+            />
           </Column>
 
-          <Column minWidth={200} flexGrow={2} fixed verticalAlign="middle" resizable>
+          <Column
+            minWidth={200}
+            flexGrow={2}
+            fixed
+            verticalAlign="middle"
+            resizable
+          >
             <HeaderCell>Task</HeaderCell>
             <TaskTitleCell
               dataKey="title"
@@ -167,12 +202,12 @@ export default function TaskTable() {
             <DateCell dataKey="updatedAt" />
           </Column>
         </Table>
-        <div role="row" className="input-table-row">
+
+        <div className="input-table-row">
           <div className="rs-table-body-row-wrapper">
             <Input
               className="editable-cell-input"
               placeholder="+ Add Task"
-              // htmlSize={10}
               onBlur={handleAddNewTask}
               onPressEnter={handleAddNewTask}
             />
@@ -180,14 +215,27 @@ export default function TaskTable() {
         </div>
       </Panel>
 
-      {checkedKeys.length > 0 && (
-        < Panel className="pop-up-card" bordered shaded>
+      {(checkedKeys.length > 0 || subtaskCheckedKeys.length > 0) && (
+        <Panel className="pop-up-card" bordered shaded>
           <Stack spacing={10}>
             <Stack.Item className="card-box">
-              <h2>{checkedKeys.length}</h2>
+              <h2>
+                {subtaskCheckedKeys.length > 0
+                  ? subtaskCheckedKeys.length
+                  : checkedKeys.length}
+              </h2>
             </Stack.Item>
             <Stack.Item flex={1}>
-              <p>{checkedKeys.length > 1 ? 'Tasks' : 'Task'} Selected</p>
+              <p>
+                {subtaskCheckedKeys.length > 0
+                  ? subtaskCheckedKeys.length > 1
+                    ? "Subtasks"
+                    : "Subtask"
+                  : checkedKeys.length > 1
+                    ? "Tasks"
+                    : "Task"}{" "}
+                Selected
+              </p>
             </Stack.Item>
             <Stack.Item>
               <IconButton
@@ -197,8 +245,8 @@ export default function TaskTable() {
               />
             </Stack.Item>
           </Stack>
-        </Panel >
+        </Panel>
       )}
     </>
-  )
+  );
 }

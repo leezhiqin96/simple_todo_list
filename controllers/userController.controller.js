@@ -121,6 +121,8 @@ const addUserTask = async (req, res) => {
         userID: user.id,
       });
 
+      newTask.dataValues.subtasks = [];
+
       return newTask;
     });
 
