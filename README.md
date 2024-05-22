@@ -21,17 +21,17 @@ npx sequelize-cli db:migrate –env production
 
 Run this command to seed database with a demo user (Optional)
 
-```JSON
-{
-  'username': 'johndoe',
-  'email': 'john@gmail.com',
-  'password': 'password',
-}
-
-```
-
 ```bash
 npx sequelize-cli db:seed:all --env production
+```
+
+```JSON
+// Demo User credentials
+{
+  username: 'johndoe',
+  email: 'john@gmail.com',
+  password: 'password',
+}
 ```
 
 ## Running of Server
