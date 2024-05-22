@@ -6,19 +6,13 @@ const csurf = require('csurf');
 const csrfProtection = csurf({ cookie: true });
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
-const { sequelize } = require('./models'); // Assuming you have Sequelize initialized
+const { sequelize } = require('./models');
 const routes = require('./config/routes');
 const logger = require('morgan');
+const { isAuthenticated } = require('./middleware/auth');
 
 require('dotenv').config();
 require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss.l');
-
-global.appRoot = path.resolve(__dirname);
-
-global.timeZone = typeof process.env.TIMEZONE == 'undefined' ? 'Asia/Singapore' : process.env.TIMEZONE;
-global.siteUrl = typeof process.env.SITE_URL == 'undefined' ? '/' : process.env.SITE_URL;
-global.cookieExpiry = typeof process.env.COOKIE_EXPIRY == 'undefined' ? ((1000 * 60 * 60 * 24) * 30) : process.env.COOKIE_EXPIRY; // one day * 30
-global.__basedir = __dirname;
 
 process.on('unhandledRejection', (reason, p) => {
   console.error('----Unhandled Rejection at:', p, 'reason:', reason);
@@ -53,6 +47,8 @@ app.use(session({
 
 // Sync the session store with Sequelize
 sequelize.sync();
+
+app.use(isAuthenticated);
 
 // Routers setup
 app.use('/', routes);
