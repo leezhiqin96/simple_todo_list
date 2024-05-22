@@ -1,11 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { Panel, Table, Input, Checkbox, Stack, IconButton, useToaster, Message } from "rsuite";
-import { TaskContext } from "./context/taskCtx.context";
-import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import TrashIcon from '@rsuite/icons/Trash';
 
-import { DateCell, DatePickerCell, EditableCell, DropDownCell, CheckCell } from "./customCells.component";
+import { TaskContext } from "./context/taskCtx.context";
+import { DateCell, DatePickerCell, TaskTitleCell, DropDownCell, CheckCell } from "./customCells.component";
+import SubTaskTable from "./subTaskTable.component";
 
 const { Column, HeaderCell } = Table;
 const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
@@ -19,12 +18,25 @@ const renderMessageBox = (type, message) => {
   )
 }
 
-export default function TaskTable() {
-  const { userTasks, addTask, updateTask, deleteTasks } = useContext(TaskContext);
-  const [expanded, setExpanded] = useState(false);
-  const [checkedKeys, setCheckKeys] = useState([]);
+const renderRowExpanded = (rowID, tasks, ref) => {
+  const selectedTask = tasks.find(task => task.id == rowID);
+  const data = selectedTask.subtasks;
+  return <SubTaskTable data={data} ref={ref} />
+}
 
+export default function TaskTable() {
+  const { userTasks, addTask, updateTask, deleteTasks, selectTask } = useContext(TaskContext);
+  const [checkedKeys, setCheckKeys] = useState([]);
+  const [expandedRowHeight, setExpandedRowHeight] = useState(300);
   const toaster = useToaster();
+  const subTableRef = useRef(null);
+
+  useEffect(() => {
+    // Gets the subtable height
+    if (subTableRef.current) {
+      setExpandedRowHeight(subTableRef.current.root.clientHeight + 200)
+    }
+  }, [subTableRef.current])
 
   // Checkbox logic ===========================================================
   let headerChecked = false;
@@ -87,6 +99,11 @@ export default function TaskTable() {
           rowKey="id"
           affixHeader
           affixHorizontalScrollbar
+          expandedRowKeys={[userTasks.selectedTask]}
+          renderRowExpanded={(rowData) => (
+            renderRowExpanded(rowData.id, userTasks.tasks, subTableRef)
+          )}
+          rowExpandedHeight={expandedRowHeight}
         >
           <Column verticalAlign="middle" width={50} fixed>
             <HeaderCell style={{ padding: "0 10px 0px 5px" }}>
@@ -99,13 +116,13 @@ export default function TaskTable() {
             <CheckCell dataKey="id" checkedKeys={checkedKeys} onChange={handleCheck} />
           </Column>
 
-
           <Column minWidth={200} flexGrow={2} fixed verticalAlign="middle" resizable>
             <HeaderCell>Task</HeaderCell>
-            <EditableCell
+            <TaskTitleCell
               dataKey="title"
-              icon={<FontAwesomeIcon icon={expanded ? faChevronDown : faChevronRight} />}
-              onExpand={() => setExpanded(!expanded)}
+              selectedTask={userTasks.selectedTask}
+              showIcon={true}
+              onSelect={selectTask}
               onBlur={handleUpdateTask}
             />
           </Column>
@@ -149,7 +166,7 @@ export default function TaskTable() {
             <Input
               className="editable-cell-input"
               placeholder="+ Add Task"
-              htmlSize={10}
+              // htmlSize={10}
               onBlur={handleAddNewTask}
               onPressEnter={handleAddNewTask}
             />

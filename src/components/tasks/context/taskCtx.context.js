@@ -32,6 +32,11 @@ const tasksReducer = (state, action) => {
         ...state,
         loading: action.payload
       }
+    case 'SELECT_TASK':
+      return {
+        ...state,
+        selectedTask: action.payload
+      }
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
   }
@@ -46,7 +51,13 @@ export const TaskContext = createContext({
 });
 
 export default function TaskContextProvider({ children }) {
-  const [userTasks, dispatchTasks] = useReducer(tasksReducer, { tasks: [], loading: false });
+  const [userTasks, dispatchTasks] = useReducer(tasksReducer,
+    {
+      tasks: [],
+      loading: false,
+      selectedTask: null
+    }
+  );
 
   useEffect(() => {
     fetchUserTasks();
@@ -103,12 +114,17 @@ export default function TaskContextProvider({ children }) {
     });
   };
 
+  const selectTask = (taskID) => {
+    dispatchTasks({ type: 'SELECT_TASK', payload: taskID });
+  }
+
 
   const ctxValue = {
-    userTasks: userTasks,
-    addTask: addTask,
-    updateTask: updateTask,
-    deleteTasks
+    userTasks,
+    addTask,
+    updateTask,
+    deleteTasks,
+    selectTask
   }
 
   return (

@@ -1,11 +1,19 @@
 import React, { useState } from "react";
 import { Stack, Table, Input, SelectPicker, IconButton, DatePicker, Checkbox } from "rsuite";
+import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DateTime } from "luxon";
 
 const { Cell } = Table;
 
-export const EditableCell = ({ rowData, dataKey, icon, onExpand, onBlur, ...props }) => {
+export const TaskTitleCell = ({ rowData, dataKey, showIcon, selectedTask, onSelect, onBlur, ...props }) => {
   const [value, setValue] = useState(rowData[dataKey]);
+
+  const isSelected = selectedTask == rowData.id;
+
+  const icon = (
+    <FontAwesomeIcon icon={isSelected ? faChevronDown : faChevronRight} />
+  )
 
   const handleBlur = () => {
     if (value !== rowData[dataKey]) {
@@ -13,14 +21,19 @@ export const EditableCell = ({ rowData, dataKey, icon, onExpand, onBlur, ...prop
     }
   };
 
+  const handleExpand = () => {
+    // If not selected, select task, else unselect
+    onSelect(isSelected ? null : rowData.id)
+  }
+
   return (
     <Cell {...props}>
       <Stack spacing={4}>
-        {icon && (
+        {showIcon && (
           <IconButton
             icon={icon}
             appearance="link"
-            onClick={onExpand}
+            onClick={handleExpand}
           />
         )}
         <Input
