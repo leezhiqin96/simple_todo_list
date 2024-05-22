@@ -8,7 +8,7 @@ const { Column, HeaderCell } = Table;
 const statusDropDown = ["Done", "Not Started", "Stucked", "Working on it"].map((item) => ({ label: item, value: item }));
 const priorityDropDown = ["Low", "Medium", "High"].map((item) => ({ label: item, value: item }));
 
-const SubTaskTable = forwardRef(({ data }, ref) => {
+const SubTaskTable = forwardRef(({ data, handleUpdateTask }, ref) => {
   const { addSubTask, userTasks } = useContext(TaskContext);
 
   const handleAddNewSubtask = async (event) => {
@@ -48,8 +48,7 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
             <HeaderCell>Subtask</HeaderCell>
             <TaskTitleCell
               dataKey="title"
-            // onSelect={selectTask}
-            // onBlur={handleUpdateTask}
+              onBlur={handleUpdateTask}
             />
           </Column>
 
@@ -58,7 +57,7 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
             <DatePickerCell
               dataKey="dueDate"
               placeholder={" "}
-            // onChange={handleUpdateTask}
+              onChange={handleUpdateTask}
             />
           </Column>
 
@@ -68,7 +67,7 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
               dataKey="status"
               options={statusDropDown}
               defaultValue="Not Started"
-            // onChange={handleUpdateTask}
+              onChange={handleUpdateTask}
             />
           </Column>
 
@@ -78,7 +77,7 @@ const SubTaskTable = forwardRef(({ data }, ref) => {
               dataKey="priority"
               options={priorityDropDown}
               defaultValue="Low"
-            // onChange={handleUpdateTask}
+              onChange={handleUpdateTask}
             />
           </Column>
         </Table>

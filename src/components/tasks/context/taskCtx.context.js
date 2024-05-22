@@ -54,9 +54,11 @@ const tasksReducer = (state, action) => {
 
 export const TaskContext = createContext({
   userTasks: [],
-  addTask: async (title) => null,
-  updateTask: async (title) => null,
-  deleteTasks: async (tasksIDList) => { }
+  addTask: async (title) => { },
+  updateTask: async (rowID, field, value) => null,
+  deleteTasks: async (tasksIDList) => { },
+  selectTask: () => { },
+  addSubTask: async (title) => { }
 });
 
 export default function TaskContextProvider({ children }) {

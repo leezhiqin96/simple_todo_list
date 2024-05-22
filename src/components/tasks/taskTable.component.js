@@ -87,6 +87,7 @@ export default function TaskTable() {
       <SubTaskTable
         data={data}
         ref={ref}
+        handleUpdateTask={handleUpdateTask}
       />
     )
   }
