@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Stack, Table, Input, SelectPicker, IconButton, DatePicker, Checkbox } from "rsuite";
+import { Stack, Table, Input, SelectPicker, IconButton, DatePicker, Checkbox, Tooltip, Whisper } from "rsuite";
 import { faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DateTime } from "luxon";
@@ -30,11 +30,13 @@ export const TaskTitleCell = ({ rowData, dataKey, showIcon, selectedTask, onSele
     <Cell {...props}>
       <Stack spacing={4}>
         {showIcon && (
-          <IconButton
-            icon={icon}
-            appearance="link"
-            onClick={handleExpand}
-          />
+          <Whisper followCursor speaker={<Tooltip>Expand this item</Tooltip>}>
+            <IconButton
+              icon={icon}
+              appearance="link"
+              onClick={handleExpand}
+            />
+          </Whisper>
         )}
         <Input
           className="editable-cell-input"
@@ -100,13 +102,14 @@ export const DateCell = ({ rowData, dataKey, ...props }) => {
   return <Cell {...props}>{displayDate}</Cell>
 }
 
-export const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
+export const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, disabled, ...props }) => (
   <Cell style={{ padding: "0 10px 0px 5px" }} {...props}>
     <Checkbox
       value={rowData[dataKey]}
       inline
       onChange={onChange}
       checked={checkedKeys.some(item => item === rowData[dataKey])}
+      disabled={disabled}
     />
   </Cell>
 );
