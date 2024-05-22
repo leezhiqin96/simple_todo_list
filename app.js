@@ -1,18 +1,14 @@
 const createError = require('http-errors');
 const path = require('path');
-const fs = require('fs');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const csrfProtection = csurf({ cookie: true });
-const RequestIp = require('@supercharge/request-ip');
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const { sequelize } = require('./models'); // Assuming you have Sequelize initialized
 const routes = require('./config/routes');
 const logger = require('morgan');
-
-const { isAuthenticated } = require('./middleware/auth')
 
 require('dotenv').config();
 require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss.l');
@@ -58,13 +54,6 @@ app.use(session({
 // Sync the session store with Sequelize
 sequelize.sync();
 
-app.use(function (req, res, next) {
-  // setup for user agent and ip
-  req.ua = req.get('User-Agent');
-  req.ip = RequestIp.getClientIp(req)
-  next();
-});
-
 // Routers setup
 app.use('/', routes);
 
@@ -77,7 +66,8 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = {};
 
   // render the error page
   res.status(err.status || 500);

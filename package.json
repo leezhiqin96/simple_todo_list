@@ -19,7 +19,6 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.1",
-    "@supercharge/request-ip": "^1.2.0",
     "axios": "^1.6.8",
     "connect-session-sequelize": "^7.1.7",
     "console-stamp": "^3.1.2",
