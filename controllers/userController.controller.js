@@ -142,6 +142,7 @@ const updateUserTask = async (req, res) => {
       task[field] = value;
 
       const updatedTask = await task.save();
+      updatedTask.dataValues.subtasks = [];
       return updatedTask
     });
 
