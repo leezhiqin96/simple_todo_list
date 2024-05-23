@@ -48,8 +48,6 @@ app.use(session({
 // Sync the session store with Sequelize
 sequelize.sync();
 
-app.use(isAuthenticated);
-
 // Routers setup
 app.use('/', routes);
 
