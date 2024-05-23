@@ -16,7 +16,7 @@ Run these commands to create your database and schema
 
 ```bash
 npx sequelize-cli db:create --env production
-npx sequelize-cli db:migrate –env production
+npx sequelize-cli db:migrate -–env production
 ```
 
 Run this command to seed database with a demo user (Optional)
