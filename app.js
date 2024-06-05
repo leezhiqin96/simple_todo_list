@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Set up session middleware
 app.use(session({
-  secret: 'fRu1ZBg3nHJz$%@l9w1XqW2T34pDjKoG',
+  secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: false,
   store: new SequelizeStore({
