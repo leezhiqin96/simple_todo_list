@@ -4,8 +4,8 @@
   "description": "Simple To Do List App",
   "main": "index.js",
   "scripts": {
-    "start": "npm-run-all --parallel run build",
-    "run": "node ./bin/www",
+    "start": "node ./bin/www",
+    "run": "npm-run-all --parallel start build",
     "watch": "nodemon ./bin/www",
     "build": "webpack --mode=production",
     "build-dev": "webpack --mode=development",
